@@ -1,7 +1,10 @@
 name:  Wpf Continuous Delivery
 
 # Trigger on any push with a git tag
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
 
@@ -9,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        channel: [Prod_Sideload]
+        channel: [Dev, Prod_Sideload, Prod_Store]
         targetPlatform: [x86, x64]
         include:
           # TODO
@@ -93,16 +96,9 @@ jobs:
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
       if: matrix.ChannelName != 'Prod_Store'
 
-    # Restore the test application
-    - name:  Restore the Wpf application to populate the obj folder
-      run: msbuild $env:Test_Project_Path /restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
-      env:
-        Configuration: ${{ matrix.Configuration }}
-        RuntimeIdentifier: win-${{ matrix.targetplatform }}
-
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder
-      run: msbuild $env:Wpf_Project_Path /restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
+      run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
         Configuration: ${{ matrix.Configuration }}
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
@@ -113,7 +109,7 @@ jobs:
       if: matrix.ChannelName != 'Prod_Store'
       env:
         AppxBundle: Never
-        AppInstallerUri: ${{ matrix.DistributionUrl }}      
+        AppInstallerUri: ${{ matrix.DistributionUrl }}
         BuildMode: SideLoadOnly
         Configuration: ${{ matrix.Configuration }}
         GenerateAppInstallerFile: True

@@ -52,6 +52,17 @@ jobs:
     - name: Execute Unit Tests
       run: dotnet test $env:Test_Project_Path
 
+    # Restore the application
+    - name:  Restore the Wpf application to populate the obj folder
+      run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
+      env:
+        Configuration: Release
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+
+    # Clean the solution to prevent error NETSDK1047
+    - name: Clean the solution
+      run: msbuild $env:Solution_Path /t:Clean
+
     # Decode the Base64 encoded Pfx
     - name: Decode the Pfx
       run: |
@@ -59,14 +70,6 @@ jobs:
         $currentDirectory = Get-Location
         $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
-
-    # Restore the application
-    - name:  Restore the Wpf application to populate the obj folder
-      run: msbuild $env:Wpf_Project_Path /restore /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
-      env:
-        Configuration: Release
-        RuntimeIdentifier: win-${{ matrix.targetplatform }}
-        TargetPlatform: ${{ matrix.targetplatform }}
 
     # Build the Windows Application Packaging project
     - name: Build the Windows Application Packaging Project (wapproj) 
