@@ -183,7 +183,7 @@ Avoid submitting certificates to the repo if at all possible. (Git ignores them 
 Generate a signing certificate in the Windows Application Packaging Project or add an existing signing certificate to the project and then use PowerShell to encode the .pfx file using Base64 encoding.
 
 ```pwsh
-$pfx_cert = Get-Content '.\GitHubActionsDemo_password.pfx' -Encoding Byte
+$pfx_cert = Get-Content '.\GitHubActionsDemo.pfx' -Encoding Byte
 [System.Convert]::ToBase64String($pfx_cert) | Out-File `SigningCertificate_Encoded.txt'
 ```
 
