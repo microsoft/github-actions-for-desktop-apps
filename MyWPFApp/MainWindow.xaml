@@ -1,0 +1,63 @@
+﻿<Window x:Class="MyWPFApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyWPFApp"
+        mc:Ignorable="d"
+        AutomationProperties.AutomationId="MyWPFAppMainWindow"
+        Title="MainWindow" Height="400" Width="800">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="Margin" Value="5" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="Margin" Value="5" />
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="22" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="Cyan">
+            <TextBlock Text="DevOps Demo" Foreground="DarkBlue"/>
+        </Border>
+
+        <Label Grid.Row="1" Content="Package Name" Target="{Binding ElementName=packageName}" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="1" x:Name="packageName" Grid.Column="1" VerticalAlignment="Center"  />
+
+        <Label Grid.Row="2" Content="Package Version" Target="{Binding ElementName=packageVersion}" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="2" x:Name="packageVersion" Grid.Column="1" VerticalAlignment="Center" />
+
+        <Label Grid.Row="3" Content="Installed from" Target="{Binding ElementName=installedFrom}" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="3" x:Name="installedFrom" Grid.Column="1"  VerticalAlignment="Center"  />
+
+        <Label Grid.Row="4" Content="AssemblyVersion" Target="{Binding ElementName=assemblyVersion}" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="4" x:Name="assemblyVersion" Grid.Column="1" VerticalAlignment="Center" />
+
+        <Label Grid.Row="5" Content="Install Location" Target="{Binding ElementName=installLocation}" />
+        <TextBlock Grid.Row="5" x:Name="installLocation" Grid.Column="1" VerticalAlignment="Center"  />
+
+
+        <Button x:Name="ButtonShowRuntimeVersionInfo" Grid.Row="6" Click="Button_Click" Height="40"  Width="210">Show Runtime Info</Button>
+        <TextBlock x:Name="RuntimeVersionInfo" Grid.Row="6" Grid.Column="1"  />
+
+    </Grid>
+</Window>
