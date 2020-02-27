@@ -6,10 +6,9 @@ This repo contains a sample application to demonstrate how to create a CI/CD pip
 
 With GitHub Actions, you can automate your software workflows.  You can build, test, and deploy your code within GitHub.  Documentation for GitHub Actions can be found [here](https://github.com/features/actions).
 
-![](https://github.com/edwardskrod/devops-for-windows-apps/workflows/Wpf%20Continuous%20Integration/badge.svg)
+![Wpf Continuous Integration](https://github.com/microsoft/github-actions-for-desktop-apps/workflows/Wpf%20Continuous%20Integration/badge.svg)
 
-![](https://github.com/edwardskrod/devops-for-windows-apps/workflows/Wpf%20Continuous%20Delivery/badge.svg)
-
+![Wpf Continuous Delivery](https://github.com/microsoft/github-actions-for-desktop-apps/workflows/Wpf%20Continuous%20Delivery/badge.svg)
 ## Workflows
 
 Workflows are defined in YAML files in the .github/workflows folder.  In this project, we have two workflow definitions:
