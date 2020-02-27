@@ -122,8 +122,6 @@ In this workflow, the GitHub agent builds the WPF .Net Core application and crea
  
 Channels and variables are defined in the Build Matrix and will build and create app packages for Dev, Prod_Sideload and Prod_Store.
 
-**TODO**
-[ ] Change personal url to organization URL
 ```yaml
 jobs:
 
@@ -137,7 +135,7 @@ jobs:
           - channel: Dev
             ChannelName: Dev
             Configuration: Debug
-            DistributionUrl: https://edwardskrod.github.io/devops-for-windows-apps-distribution-dev
+            DistributionUrl: https://microsoft.github.io/github-actions-for-desktop-apps-distribution-dev
             MsixPackageId: MyWPFApp.DevOpsDemo.Dev
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (Dev)
@@ -147,7 +145,7 @@ jobs:
           - channel: Prod_Sideload
             Configuration: Release
             ChannelName: Prod_Sideload
-            DistributionUrl: https://edwardskrod.github.io/devops-for-windows-apps-distribution-prod
+            DistributionUrl: https://microsoft.github.io/github-actions-for-desktop-apps-distribution-prod
             MsixPackageId: MyWPFApp.DevOpsDemo.ProdSideload
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (ProdSideload)
