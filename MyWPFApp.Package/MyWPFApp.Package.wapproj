@@ -86,7 +86,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\*" />
-    <None Include="MyWPFApp.Package_TemporaryKey.pfx" />
     <Content Include="Package.appinstaller" />
   </ItemGroup>
   <ItemGroup>
