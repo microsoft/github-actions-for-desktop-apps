@@ -1,6 +1,5 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
-
 name:  Wpf Continuous Delivery
 
 # Trigger on any push with a git tag
