@@ -175,6 +175,33 @@ The CD pipeline uses the Package Identity Name defined in the Package.appxmanife
 
 Once the MSIX is created for each channel, the agent archives the AppPackages folder then creates a Release with the specified git release tag.  The archive is uploaded to the release as an asset for storage or distribution.
 
+```
+    # Create the release:  https://github.com/actions/create-release
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref}}.${{matrix.ChannelName}}.${{ matrix.targetplatform }}
+        release_name:  ${{ github.ref }}.${{ matrix.ChannelName }}.${{ matrix.targetplatform }}
+        draft: false
+        prerelease: false
+
+    # Upload release asset:   https://github.com/actions/upload-release-asset
+    - name: Update release asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: MyWpfApp.Package\AppPackages\AppPackages.zip
+        asset_name: AppPackages.zip
+        asset_content_type: application/zip
+
+```
+
 Creating channels for the application is a powerful way to create multiple distributions of an application in the same CD pipeline.
 
 ### Signing
