@@ -87,7 +87,7 @@ Developers have the option to download the artifact to test the build or upload 
 
 ### cd.yml: Build, package, and create a GitHub release for multiple channels
 
-Build, package and distribute code for multiple channels such as 'Dev' and 'Prod.'   On every `push` to a [tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging) matching the pattern `*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) and [upload a release asset](https://developer.github.com/v3/repos/releases/#upload-a-release-asset).
+Build, package and distribute code for multiple channels such as 'Dev' and 'Prod_Sideload' and 'Prod_Store'.   On every `push` to a [tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging) matching the pattern `*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) and [upload a release asset](https://developer.github.com/v3/repos/releases/#upload-a-release-asset).
 
 ```yaml
 on: 
@@ -104,7 +104,8 @@ git push origin --tags
 
 The above commands will add the tag "1.0.0.0" and then `push` the branch and tag to the repo. [Learn more.](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
-In this workflow, the GitHub agent builds the WPF .Net Core application and creates a MSIX package. Prior to building the code, the application's Identity Name, Publisher, Application DisplayName, and other elements in the Package.appxmanifest are changed according to which channel should be built. 
+In this workflow, the GitHub agent builds the WPF .Net Core application and creates a MSIX package.
+Prior to building the code, the application's Identity Name, Publisher, Application DisplayName, and other elements in the Package.appxmanifest are changed according to which channel should be built. 
 
 ```yaml
     # Update the appxmanifest before build by setting the per-channel values set in the matrix.
@@ -119,7 +120,7 @@ In this workflow, the GitHub agent builds the WPF .Net Core application and crea
         $manifest.save(".\$env:Wap_Project_Directory\Package.appxmanifest")
 ```
  
-Channels and variables are defined in the Build Matrix and will build and create app packages for Dev, Prod_Sideload and Prod_Store.
+Channels and variables are defined in the Build Matrix and will build and create app packages for Dev, Prod_Sideload and Prod_Store. [Learn more.](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix)
 
 ```yaml
 jobs:
@@ -169,7 +170,7 @@ The CD pipeline uses the Package Identity Name defined in the Package.appxmanife
     Version="0.0.1.0" />
 ```
 
-Once the MSIX is created for each channel, the agent archives the AppPackages folder then creates a Release with the specified git release tag.  The archive is uploaded to the release as an asset for storage or distribution.
+Once the MSIX is created for each channel, the agent archives the AppPackages folder then creates a Release with the specified git release tag.  The archive is uploaded to the release as an asset for storage or distribution. Release names must be unique or an error will be generated.
 
 ```
     # Create the release:  https://github.com/actions/create-release
