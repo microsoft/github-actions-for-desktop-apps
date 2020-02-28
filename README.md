@@ -129,7 +129,9 @@ jobs:
     strategy:
       matrix:
         channel: [Dev, Prod_Sideload, Prod_Store]
+        targetPlatform: [x86, x64]
         include:
+          
           # includes the following variables for the matrix leg matching Dev
           - channel: Dev
             ChannelName: Dev
@@ -138,7 +140,6 @@ jobs:
             MsixPackageId: MyWPFApp.DevOpsDemo.Dev
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (Dev)
-            TargetPlatform: x86
 
           # includes the following variables for the matrix leg matching Prod_Sideload
           - channel: Prod_Sideload
@@ -148,7 +149,6 @@ jobs:
             MsixPackageId: MyWPFApp.DevOpsDemo.ProdSideload
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (ProdSideload)
-            TargetPlatform: x86
 
           # includes the following variables for the matrix leg matching Prod_Store
           - channel: Prod_Store
@@ -158,7 +158,6 @@ jobs:
             MsixPackageId: MyWPFApp.DevOpsDemo.ProdStore
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (ProdStore)
-            TargetPlatform: x86
 ```
 
 The CD pipeline uses the Package Identity Name defined in the Package.appxmanifest in the Windows Application Packaging project to identify the application as *MyWPFApp.DevOpsDemo.Dev*, *MyWPFApp.DevOpsDemo.ProdSideload*, and *MyWPFApp.DevOpsDemo.ProdStore* depending on which channel is being built.
