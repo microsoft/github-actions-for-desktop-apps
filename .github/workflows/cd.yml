@@ -24,7 +24,7 @@ jobs:
           - channel: Dev
             ChannelName: Dev
             Configuration: Debug
-            DistributionUrl: https://microsoft.github.io/github-actions-for-desktop-apps-distribution-dev
+            DistributionUrl: \\ddfiles\team\XAML\User\edskrod\GitHubActionsDemo
             MsixPackageId: MyWPFApp.DevOpsDemo.Dev
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (Dev)
