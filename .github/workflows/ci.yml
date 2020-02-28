@@ -1,9 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+# This continuous integration pipeline is triggered anytime a user pushes code to the repo.
+# This pipeline builds the Wpf project, runs unit tests, then saves the MSIX build artifact.
 name:  Wpf Continuous Integration
 
-# Trigger on push
+# Trigger on every push
 on: [push]
 
 jobs:
@@ -59,12 +61,8 @@ jobs:
     - name:  Restore the Wpf application to populate the obj folder
       run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
-        Configuration: Release
+        Configuration: Debug
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
-
-    # Clean the solution to prevent error NETSDK1047
-    - name: Clean the solution
-      run: msbuild $env:Solution_Path /t:Clean
 
     # Decode the Base64 encoded Pfx
     - name: Decode the Pfx
@@ -80,7 +78,7 @@ jobs:
       env:
         AppxBundle: Never
         BuildMode: SideLoadOnly
-        Configuration: Release
+        Configuration: Debug
         TargetPlatform: ${{ matrix.targetplatform }}
 
     # Remove the .pfx

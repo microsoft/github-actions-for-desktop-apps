@@ -1,9 +1,20 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+# This continuous delivery pipeline is meant to be triggered on release, anytime a user pushes code associated to a git tag,
+# and will run against multiple configurations and production environments.
+# This pipeline builds the Wpf project based upon the configuration matrix below.  In order to
+# create different channels of the application, the pipeline uses the Package.Identity.Name defined in the
+# Package.appxmanifest in the Windows Application Packaging Project to uniquely identify the application,
+# depending on which channel is being built.
+# Once the MSIX is created for each channel configuration, the agent archives the AppPackages folder, then creates
+# a Release with the specified git release tag. The archive is uploaded to the release as an asset for storage or distribution.
 name:  Wpf Continuous Delivery
 
 # Trigger on any push with a git tag
+# To create a git tag, run the following commands on the branch you wish to release:
+#   git tag 1.0.0.0
+#   git push origin --tags
 on:
   push:
     tags:
@@ -14,12 +25,15 @@ jobs:
   build:
 
     strategy:
+
+    # The following build matrix allows builds across multiple configurations (Debug and Release) and production environments such as
+    # development, production for sideload applications and production for the Microsoft store.
+    # For more information, see https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
       matrix:
         channel: [Dev, Prod_Sideload, Prod_Store]
         targetPlatform: [x86, x64]
         include:
-          # TODO
-          # Change personal URL to organization URL
+
           # includes the following variables for the matrix leg matching Dev
           - channel: Dev
             ChannelName: Dev
@@ -29,8 +43,6 @@ jobs:
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (Dev)
 
-          # TODO
-          # Change personal URL to organization URL
           # includes the following variables for the matrix leg matching Prod_Sideload
           - channel: Prod_Sideload
             Configuration: Release
@@ -79,7 +91,8 @@ jobs:
     - name: Setup MSBuild.exe
       uses: warrenbuckley/Setup-MSBuild@v1
 
-    # Update the appxmanifest before build by setting the per-channel values set in the matrix.
+    # Update the appxmanifest before build by setting the per-channel values set in the matrix such as
+    # the Package.Identity.Version or the Package.Identity.Name, which allows multiple channels to be built.
     - name: Update manifest version
       run: |
         [xml]$manifest = get-content ".\$env:Wap_Project_Directory\Package.appxmanifest"
