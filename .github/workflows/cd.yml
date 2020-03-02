@@ -87,9 +87,9 @@ jobs:
       with:
         dotnet-version: 3.1.100
 
-    # Add  MsBuild to the PATH: https://github.com/topics/msbuild-action
+    # Add  MsBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
-      uses: warrenbuckley/Setup-MSBuild@v1
+      uses: microsoft/setup-msbuild@v1.0.0
 
     # Update the appxmanifest before build by setting the per-channel values set in the matrix such as
     # the Package.Identity.Version or the Package.Identity.Name, which allows multiple channels to be built.
