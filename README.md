@@ -27,7 +27,7 @@ On every `push` to the repo, [Install .NET Core](https://github.com/actions/setu
 
     # Add  MsBuild to the PATH: https://github.com/topics/msbuild-action
     - name: Setup MSBuild.exe
-      uses: warrenbuckley/Setup-MSBuild@v1
+      uses: microsoft/setup-msbuild@v1.0.0
       
     # Test
     - name: Execute Unit Tests
