@@ -42,9 +42,9 @@ jobs:
       with:
         dotnet-version: 3.1.100
 
-    # Add  MsBuild to the PATH: https://github.com/topics/msbuild-action
+    # Add  MsBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
-      uses: warrenbuckley/Setup-MSBuild@v1
+      uses: microsoft/setup-msbuild@v1.0.0
 
     # Update the version before build
     - name: Update manifest version
@@ -87,7 +87,7 @@ jobs:
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v1
       with:
         name: MSIX Package
         path: MyWpfApp.Package\AppPackages\
