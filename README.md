@@ -178,6 +178,43 @@ jobs:
             MsixPackageDisplayName: MyWPFApp (ProdStore)
 ```
 
+Like the CI workflow, restore the solution:
+```yaml
+    # Restore the application
+    - name:  Restore the Wpf application to populate the obj folder
+      run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
+      env:
+        Configuration: ${{ matrix.Configuration }}
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+```
+Using GitHub's ```if``` conditional, either build and create an MSIX page for Dev and Prod_Sideload (which require a signing certificate) or for Prod_Store.
+
+```yaml
+    # Build the Windows Application Packaging project for Dev and Prod_Sideload
+    - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      if: matrix.ChannelName != 'Prod_Store'
+      env:
+        AppxBundle: Never
+        AppInstallerUri: ${{ matrix.DistributionUrl }}
+        BuildMode: SideLoadOnly
+        Configuration: ${{ matrix.Configuration }}
+        GenerateAppInstallerFile: True
+        TargetPlatform: ${{ matrix.targetplatform }}
+        
+    # Build the Windows Application Packaging project for Prod_Store
+    - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:GenerateAppInstallerFile=$env:GenerateAppInstallerFile /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
+      if: matrix.ChannelName == 'Prod_Store'
+      env:
+        AppxBundle: Never
+        AppxPackageSigningEnabled: False
+        BuildMode: StoreOnly
+        Configuration: ${{ matrix.Configuration }}
+        GenerateAppInstallerFile: False
+        TargetPlatform: ${{ matrix.targetplatform }}
+```
+
 Once the MSIX is created for each channel, the agent archives the AppPackages folder then creates a Release with the specified git release tag.  The archive is uploaded to the release as an asset for storage or distribution. Release names must be unique or an error will be generated.
 
 ```yaml
