@@ -259,8 +259,9 @@ The [Nerdbank.GitVersioning GitHub Action](https://github.com/AArnott/nbgv) sets
 * NBGV_ChocolateyPackageVersion 
 * NBGV_NpmPackageVersion
 
-See the [Nerdbank.GitVersioning](https://github.com/aarnott/nerdbank.gitversioning) package for more information.
+![Environment variables set by NBGV.](doc/images/versionEnvironmentVariables.png)
 
+See the [Nerdbank.GitVersioning](https://github.com/aarnott/nerdbank.gitversioning) package for more information.
 
 ### Publisher Profiles
 Publisher Profiles allow developers to reference publishing information about their application in the Windows Application Packaging Project.
