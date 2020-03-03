@@ -180,7 +180,7 @@ jobs:
 
 Once the MSIX is created for each channel, the agent archives the AppPackages folder then creates a Release with the specified git release tag.  The archive is uploaded to the release as an asset for storage or distribution. Release names must be unique or an error will be generated.
 
-```
+```yaml
     # Create the release:  https://github.com/actions/create-release
     - name: Create release
       id: create_release
