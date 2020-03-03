@@ -208,7 +208,7 @@ Generate a signing certificate in the Windows Application Packaging Project or a
 
 ```pwsh
 $pfx_cert = Get-Content '.\GitHubActionsDemo.pfx' -Encoding Byte
-[System.Convert]::ToBase64String($pfx_cert) | Out-File `SigningCertificate_Encoded.txt'
+[System.Convert]::ToBase64String($pfx_cert) | Out-File 'SigningCertificate_Encoded.txt'
 ```
 
 Copy the string from the output file, *SigningCertificate_Encoded.txt*, and add it to the repo as a GitHub secret. [Add a secret to the workflow.](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/virtual-environments-for-github-hosted-runners#creating-and-using-secrets-encrypted-variables)
