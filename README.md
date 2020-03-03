@@ -72,7 +72,7 @@ Restore the project prior to build in order to populate the obj folder with the 
 ```
 Once packaged, take advantage of the [upload-artifact](https://github.com/marketplace/actions/upload-artifact) GitHub Action to deploy and test the application.
 
-```
+```yaml
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v1
