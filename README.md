@@ -25,7 +25,7 @@ On every `push` to the repo, [Install .NET Core](https://github.com/actions/setu
       with:
         dotnet-version: 3.1.100
 
-    # Add  MsBuild to the PATH: https://github.com/topics/msbuild-action
+    # Add  MsBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.0
       
