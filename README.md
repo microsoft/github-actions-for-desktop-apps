@@ -17,7 +17,7 @@ Workflows are defined in YAML files in the .github/workflows folder.  In this pr
 
 ### ci.yml: Build, test, package, and save the package artifacts.
 
-On every `push` to the repo, [Install .NET Core](https://github.com/actions/setup-dotnet), add [MSBuild](https://github.com/topics/msbuild-action) to the PATH, and execute unit tests.
+On every `push` to the repo, [Install .NET Core](https://github.com/actions/setup-dotnet), add [MSBuild](https://github.com/microsoft/setup-msbuild) to the PATH, and execute unit tests.
 
 ```yaml
     - name: Install .NET Core
