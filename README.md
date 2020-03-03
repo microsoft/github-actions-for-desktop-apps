@@ -128,7 +128,15 @@ Prior to building the code, the application's Identity Name, Publisher, Applicat
         $manifest.Package.Applications.Application.VisualElements.DisplayName = "${{ matrix.MsixPackageDisplayName }}"
         $manifest.save(".\$env:Wap_Project_Directory\Package.appxmanifest")
 ```
- 
+This Powershell script effectively overwrites the Package.Identity.Name defined in the Windows Application Packaging project's Package.appxmanifest.  This changes the identity of the application to *MyWPFApp.DevOpsDemo.Dev*, *MyWPFApp.DevOpsDemo.ProdSideload*, or *MyWPFApp.DevOpsDemo.ProdStore* depending on which matrix channel is being built, thus enabling the ability to have multiple channels of an application.
+
+```xml
+  <Identity
+    Name="MyWPFApp.DevOpsDemo.ProdSideload"
+    Publisher="CN=GitHubActionsDemo"
+    Version="0.0.1.0" />
+```
+
 Channels and variables are defined in the Build Matrix and will build and create app packages for Dev, Prod_Sideload and Prod_Store. [Learn more.](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix)
 
 ```yaml
@@ -168,15 +176,6 @@ jobs:
             MsixPackageId: MyWPFApp.DevOpsDemo.ProdStore
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (ProdStore)
-```
-
-The CD pipeline uses the Package Identity Name defined in the Package.appxmanifest in the Windows Application Packaging project to identify the application as *MyWPFApp.DevOpsDemo.Dev*, *MyWPFApp.DevOpsDemo.ProdSideload*, and *MyWPFApp.DevOpsDemo.ProdStore* depending on which channel is being built.
-
-```xml
-  <Identity
-    Name="MyWPFApp.DevOpsDemo.ProdSideload"
-    Publisher="CN=GitHubActionsDemo"
-    Version="0.0.1.0" />
 ```
 
 Once the MSIX is created for each channel, the agent archives the AppPackages folder then creates a Release with the specified git release tag.  The archive is uploaded to the release as an asset for storage or distribution. Release names must be unique or an error will be generated.
