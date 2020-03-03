@@ -251,7 +251,17 @@ Finally, delete the .pfx.
 
 ### Versioning
 
+In both workflows, one of the first things we do is create a version.  Having a different version for every push is especially important when we create a release as each release must have a unique release_name.
+
 The [Nerdbank.GitVersioning GitHub Action](https://github.com/AArnott/nbgv) sets the build version based on a combination of the included version.json file, and the git height of the version which is the number of commits in the longest path from HEAD to the commit that set the major.minor version number to the values found in the HEAD. Once the action runs, a number of environment variables are available for use, such as:
+
+```yaml
+    # Use Nerdbank.GitVersioning to set version variables: https://github.com/AArnott/nbgv
+    - name: Use Nerdbank.GitVersioning to set version variables
+      uses: aarnott/nbgv@v0.3
+      with:
+        setAllVars: true
+ ```
 
 * NBGV_Version (e.g. 1.1.159.47562)
 * NBGV_SimpleVersion (e.g. 1.1.159)

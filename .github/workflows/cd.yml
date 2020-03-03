@@ -75,7 +75,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
 
-    # Use Nerdbank.GitVersioning to set version variables: https://github.com/marketplace/actions/github-action-for-nerdbank-gitversioning
+    # Use Nerdbank.GitVersioning to set version variables: https://github.com/AArnott/nbgv
     - name: Use Nerdbank.GitVersioning to set version variables
       uses: aarnott/nbgv@v0.3
       with:
