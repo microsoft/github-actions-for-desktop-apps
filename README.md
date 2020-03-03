@@ -52,7 +52,7 @@ Target multiple platforms by authoring the workflow to define a Build Matrix, a 
       Wap_Project_Name: MyWpfApp.Package.wapproj
 ```
 
-Build and package the Wpf Net Core application with MsBuild.  Restore the project prior to build in order to take advantage of Publish Profiles (see below).
+Restore the project prior to build in order to populate the obj folder with the necessary platform dependencies. Build and package the Wpf Net Core application with MsBuild while taking advantage of Publish Profiles (see below).
 ```yaml
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder
@@ -70,9 +70,7 @@ Build and package the Wpf Net Core application with MsBuild.  Restore the projec
         Configuration: Release
         TargetPlatform: ${{ matrix.targetplatform }}
 ```
-See the article ["Workflow Syntax for GitHub Actions"](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/workflow-syntax-for-github-actions) for more information.
-
-Build and package the WPF .Net Core application with MSBuild and then [upload the build artifacts](https://github.com/marketplace/actions/upload-artifact) to deploy and test the application.
+Once packaged, [upload the build artifacts](https://github.com/marketplace/actions/upload-artifact) to deploy and test the application.
 
 The CI pipeline uses the Package Identity Name defined in the Package.appxmanifest in the Windows Application Packaging project to identify the application as "MyWPFApp.DevOpsDemo.Local." By suffixing the application with ".Local," developers are able to install it side by side with other channels of the app.
 
