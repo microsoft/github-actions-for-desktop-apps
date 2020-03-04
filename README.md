@@ -296,7 +296,17 @@ Finally, delete the .pfx.
 
 ### Versioning
 
+In both workflows, one of the first things we do is create a version.  Having a different version for every push is especially important when we create a release as each release must have a unique release_name.
+
 The [Nerdbank.GitVersioning GitHub Action](https://github.com/AArnott/nbgv) sets the build version based on a combination of the included version.json file, and the git height of the version which is the number of commits in the longest path from HEAD to the commit that set the major.minor version number to the values found in the HEAD. Once the action runs, a number of environment variables are available for use, such as:
+
+```yaml
+    # Use Nerdbank.GitVersioning to set version variables: https://github.com/AArnott/nbgv
+    - name: Use Nerdbank.GitVersioning to set version variables
+      uses: aarnott/nbgv@v0.3
+      with:
+        setAllVars: true
+ ```
 
 * NBGV_Version (e.g. 1.1.159.47562)
 * NBGV_SimpleVersion (e.g. 1.1.159)
@@ -304,8 +314,9 @@ The [Nerdbank.GitVersioning GitHub Action](https://github.com/AArnott/nbgv) sets
 * NBGV_ChocolateyPackageVersion 
 * NBGV_NpmPackageVersion
 
-See the [Nerdbank.GitVersioning](https://github.com/aarnott/nerdbank.gitversioning) package for more information.
+![Environment variables set by NBGV.](doc/images/versionEnvironmentVariables.png)
 
+See the [Nerdbank.GitVersioning](https://github.com/aarnott/nerdbank.gitversioning) package for more information.
 
 ### Publisher Profiles
 Publisher Profiles allow developers to reference publishing information about their application in the Windows Application Packaging Project.
@@ -332,6 +343,9 @@ Edit the profile name to reflect the settings by clicking "Rename" in the Publis
 In the packaging project, add a reference to the Publish Profile.  In the Solution Explorer, open MyWPFApp.Package and navigate to Applications.  Click on MyWFPApp.  In the properties window, select Publishing Profile.  The dropdown should be populated with the recently-created profile.
 
 ![](doc/images/myWpfApp.Package.Properties.png)
+
+To ensure the settings were added correctly to MyWPFApp.Package, double click on the project to open the .wapproj file.  Scroll to the bottom to find the PublishProfile elements.
+![](doc/images/publishProfileComplete.png)
 
 # Contributions
 This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
