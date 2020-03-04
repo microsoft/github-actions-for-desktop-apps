@@ -299,6 +299,9 @@ In the packaging project, add a reference to the Publish Profile.  In the Soluti
 
 ![](doc/images/myWpfApp.Package.Properties.png)
 
+To ensure the settings were added correctly to MyWPFApp.Package, double click on the project to open the .wapproj file.  Scroll to the bottom to find the PublishProfile elements.
+![](doc/images/publishProfileComplete.png)
+
 # Contributions
 This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
