@@ -56,9 +56,9 @@ Restore the project prior to build in order to populate the obj folder with the 
 ```yaml
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder
-      run: msbuild $env:Wpf_Project_Path /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
+      run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
-        Configuration: Release
+        Configuration: Debug
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
     
     # Build the Windows Application Packaging project
