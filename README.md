@@ -1,24 +1,52 @@
 # DevOps for Windows Desktop Apps Using GitHub Actions
 
-### Create a CI/CD pipeline for a Windows Presentation Foundation (WPF) application built on .Net Core 3.x
+### Create CI/CD workflows for WPF and Windows Forms Applications built on .Net Core 3.x
 
-This repo contains a sample application to demonstrate how to create a CI/CD pipeline for a WPF application built on .Net Core 3.x and packaged with MSIX using GitHub Actions. 
+This repo contains a sample application to demonstrate how to create CI/CD pipelines using [GitHub Actions] (https://github.com/features/actions "GitHub Actions page"). 
 
-With GitHub Actions, you can automate your software workflows.  You can build, test, and deploy your code within GitHub.  Documentation for GitHub Actions can be found [here](https://github.com/features/actions).
+With GitHub Actions, you can quickly and easily automate your software workflows with CI/CD.
+* Integrate code changes directly into GitHub to speed up development cycles
+* Trigger builds to quickly identify breaking changes and create testable debug builds
+* Continuously run tests to identify and eliminate bugs, improving code quality 
+* Automatically build, sign, package and deploy branches that pass CI 
+
+Build, test, and deploy your code entirely within GitHub.  
 
 ![Wpf Continuous Integration](https://github.com/microsoft/github-actions-for-desktop-apps/workflows/Wpf%20Continuous%20Integration/badge.svg)
 
 ![Wpf Continuous Delivery](https://github.com/microsoft/github-actions-for-desktop-apps/workflows/Wpf%20Continuous%20Delivery/badge.svg)
+
 ## Workflows
 
-Workflows are defined in YAML files in the .github/workflows folder.  In this project, we have two workflow definitions:
-* **ci.yml:** This file defines the steps for our Continuous Integration pipeline.
-* **cd.yml:** This file defines the steps for our Continuous Delivery pipeline.
+To take advantage of GitHub Actions, workflows are defined in YAML files that are in a .github/workflows folder. 
+In our project, we define two workflows:
+* .github/workflows/ci.yml
+* .github/workflows/cd.yml
 
-### ci.yml: Build, test, package, and save the package artifacts.
+The ci.yml file defines our continuous integration workflow which we will use to build, test, and create a package every time a developer pushes code to the repo.  Because we want to take advantage of testing every time we push a code change in order to ensure better code quality, we execute tests and create a testable build every time we ```git push```.
 
-On every `push` to the repo, [Install .NET Core](https://github.com/actions/setup-dotnet), add [MSBuild](https://github.com/microsoft/setup-msbuild) to the PATH, and execute unit tests.
+Our CI workflow takes advantage of GitHub’s workflow syntax for setting up a build matrix in order to build, test and package multiple build configurations.  [Learn how to configure a build matrix.](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix, "Configuring a build matrix page")
 
+Because ci.yml is triggered on every push, we keep the workflow relatively lightweight by only testing those configurations that are necessary to ensure good quality.  This minimizes the amount of time necessary to build, test and get results.
+
+The cd.yml file defines our continuous delivery workflow.  With this workflow, we build, sign, package and archive our release assets for every configuration we plan to release.  
+
+We also define a build matrix that produces artifacts for three channels: development (Dev), production sideload (Prod_Sideload) and also production for the [Microsoft Store](https://www.microsoft.com/en-us/store/apps/windows "Microsoft Store home page") (Prod_Store). In this example, each channel is built for two configurations: x86 and x64.  However, arm or arm64 are valid configurations as well.
+
+A build matrix can be created to execute jobs across multiple operating systems, build configurations or different supported versions of a programming language. With GitHub Actions, you can define incredibly complex build matrices that can generate up to 256 builds per run!   For more information, see GitHub's [Workflow Syntax for GitHub Actions](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstrategy "Workflow Syntax for GitHub Actions page").
+
+
+### ci.yml: Build, test, package, and save package artifacts.
+
+The CI workflow defines the Package.Identity.Name in the Windows Application Packaging project’s Package.appxmanifest to identify the application as "MyWPFApp.DevOpsDemo.Local." By suffixing the application name with ".Local," developers are able to install it side by side with other channels of the app.
+```yaml
+  <Identity
+    Name="MyWPFApp.DevOpsDemo.Local"
+    Publisher="CN=GitHubActionsDemo"
+    Version="0.0.1.0" />
+```
+
+On every push to the repo, we take advantage of the [setup-dotnet](https://github.com/actions/setup-dotnet "Setup dotnet GitHub Action") GitHub Action and install the [dotnet core cli](https://github.com/dotnet/cli "DotNet Core CLI page") environment. Then we add [MSBuild](https://github.com/microsoft/setup-msbuild "MSBuild GitHub Action page") to the PATH and execute unit tests using the [dotnet test](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test "DotNet test page") runner console application.
 ```yaml
     - name: Install .NET Core
       uses: actions/setup-dotnet@v1
@@ -34,7 +62,10 @@ On every `push` to the repo, [Install .NET Core](https://github.com/actions/setu
       run: dotnet test $env:Test_Project_Path
 ```
 
-Target multiple platforms by authoring the workflow to define a Build Matrix, a set of different configurations for the runner environment. Define [environment variables](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables) for use by the workflow. 
+As mentioned above, we are able to target multiple platforms by authoring the workflow file to define a build matrix, a set of different configurations that are each run in a fresh instance of a virtual environment by the [GitHub-hosted runner](https://help.github.com/en/actions/getting-started-with-github-actions/core-concepts-for-github-actions#github-hosted-runner "GitHub Hosted Runner page").
+
+In the continuous integration workflow, we create a release build for x86 and x64 that runs on the latest windows OS installed on the GitHub-hosted runners.  We also define [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables "Configuring and Managing Workflows Using Environment Variables page") for use by the GitHub Actions workflow run.  In our case, we define variables common to both runs defined in the matrix such as the signing certificate name, the relative path to the solution file and the Windows Application Packaging project name.
+ 
 
 ```yaml
     strategy:
@@ -52,7 +83,16 @@ Target multiple platforms by authoring the workflow to define a Build Matrix, a 
       Wap_Project_Name: MyWpfApp.Package.wapproj
 ```
 
-Restore the project prior to build in order to populate the obj folder with the necessary platform dependencies. Build and package the Wpf Net Core application with MsBuild while taking advantage of Publish Profiles (see below).
+Next, we execute the unit tests in MYWPFApp.Tests by calling ‘donet test’.
+```yaml
+    # Test
+    - name: Execute Unit Tests
+      run: dotnet test $env:Test_Project_Path
+```
+
+
+After executing the tests, we restore the application while passing in the RuntimeIdentifier parameter in order to populate the obj folder with the appropriate platform dependencies for use during build.
+
 ```yaml
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder
@@ -60,7 +100,10 @@ Restore the project prior to build in order to populate the obj folder with the 
       env:
         Configuration: Debug
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
-    
+```
+
+Once the application has been restored, we are ready to build and create the MSIX.  Rather than build each project separately, we simply build the solution, making sure to pass the target platform, configuration, build mode, whether we want to produce an app bundle, the signing certificate, and certificate password as parameters.
+```yaml
     # Build the Windows Application Packaging project
     - name: Build the Windows Application Packaging Project (wapproj) 
       run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
@@ -70,8 +113,8 @@ Restore the project prior to build in order to populate the obj folder with the 
         Configuration: Release
         TargetPlatform: ${{ matrix.targetplatform }}
 ```
-Once packaged, take advantage of the [upload-artifact](https://github.com/marketplace/actions/upload-artifact) GitHub Action to deploy and test the application.
 
+Once we have created the app package, we take advantage of the [upload-artifact](https://github.com/marketplace/actions/upload-artifact "upload-artifact GitHub Action page") GitHub Action to save the artifact. You have the option to download the artifact to test the build or upload the artifact to a website or file share to distribute the application. 
 ```yaml
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
@@ -81,18 +124,9 @@ Once packaged, take advantage of the [upload-artifact](https://github.com/market
         path: MyWpfApp.Package\AppPackages\
 ```
 
+To find the artifact, navigate to "Actions," select the workflow, then download the artifact on the right side of the window.
+![](doc/images/findArtifact.png)
 
-
-The CI pipeline uses the Package Identity Name defined in the Package.appxmanifest in the Windows Application Packaging project to identify the application as "MyWPFApp.DevOpsDemo.Local." By suffixing the application with ".Local," developers are able to install it side by side with other channels of the app.
-
-```xml
-  <Identity
-    Name="MyWPFApp.DevOpsDemo.Local"
-    Publisher="CN=GitHubActionsDemo"
-    Version="0.0.1.0" />
-```
-
-Developers have the option to download the artifact to test the build or upload the artifact to a website or file share for app distribution.  
 
 ### cd.yml: Build, package, and create a GitHub release for multiple channels
 
