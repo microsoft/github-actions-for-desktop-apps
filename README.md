@@ -263,6 +263,12 @@ It’s important to note that release names must be unique or an error will be g
 
 ```
 
+To find the Release artifacts, navigate to the "Releases" link in the repo.
+![](doc/images/releases.png)
+
+Find the release and asset location.
+![](doc/images/releaseAssetLocation.png)
+
 Creating channels for the application is a powerful way to create multiple distributions of an application in the same CD pipeline.
 
 
