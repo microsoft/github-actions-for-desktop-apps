@@ -18,22 +18,20 @@ Build, test, and deploy your code entirely within GitHub.
 
 ## Workflows
 
-To take advantage of GitHub Actions, workflows are defined in YAML files that are in a .github/workflows folder. 
-In our project, we define two workflows:
+To take advantage of GitHub Actions, workflows are defined in YAML files that are in the .github/workflows folder. 
+In the project, there are two workflows defined:
 * .github/workflows/ci.yml
 * .github/workflows/cd.yml
 
-The ci.yml file defines our continuous integration workflow which we will use to build, test, and create a package every time a developer pushes code to the repo.  Because we want to take advantage of testing every time we push a code change in order to ensure better code quality, we execute tests and create a testable build every time we ```git push```.
+The ci.yml file defines the continuous integration workflow which is used to build, test, and create a package every time a developer pushes code to the repo.
 
-Our CI workflow takes advantage of GitHub’s workflow syntax for setting up a build matrix in order to build, test and package multiple build configurations.  [Learn how to configure a build matrix.](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix, "Configuring a build matrix page")
+The benefits of kicking off a CI run on every push are multi-fold:
+* Quickly identify breaking changes
+* Create a testable debug build
+* Continuously run tests to identify and eliminate bugs, improving code quality
+* Keep workflow relatively lightwight by only testing configurations necessary to ensure good quality
 
-Because ci.yml is triggered on every push, we keep the workflow relatively lightweight by only testing those configurations that are necessary to ensure good quality.  This minimizes the amount of time necessary to build, test and get results.
-
-The cd.yml file defines our continuous delivery workflow.  With this workflow, we build, sign, package and archive our release assets for every configuration we plan to release.  
-
-We also define a build matrix that produces artifacts for three channels: development (Dev), production sideload (Prod_Sideload) and also production for the [Microsoft Store](https://www.microsoft.com/en-us/store/apps/windows "Microsoft Store home page") (Prod_Store). In this example, each channel is built for two configurations: x86 and x64.  However, arm or arm64 are valid configurations as well.
-
-A build matrix can be created to execute jobs across multiple operating systems, build configurations or different supported versions of a programming language. With GitHub Actions, you can define incredibly complex build matrices that can generate up to 256 builds per run!   For more information, see GitHub's [Workflow Syntax for GitHub Actions](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstrategy "Workflow Syntax for GitHub Actions page").
+The cd.yml file defines our continuous delivery workflow used to build, sign, package and archive release assets for every configuration that is planned for release.
 
 
 ### ci.yml: Build, test, package, and save package artifacts.
@@ -46,7 +44,7 @@ The CI workflow defines the Package.Identity.Name in the Windows Application Pac
     Version="0.0.1.0" />
 ```
 
-On every push to the repo, we take advantage of the [setup-dotnet](https://github.com/actions/setup-dotnet "Setup dotnet GitHub Action") GitHub Action and install the [dotnet core cli](https://github.com/dotnet/cli "DotNet Core CLI page") environment. Then we add [MSBuild](https://github.com/microsoft/setup-msbuild "MSBuild GitHub Action page") to the PATH and execute unit tests using the [dotnet test](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test "DotNet test page") runner console application.
+On every push to the repo, take advantage of the [setup-dotnet](https://github.com/actions/setup-dotnet "Setup dotnet GitHub Action") GitHub Action and install the [dotnet core cli](https://github.com/dotnet/cli "DotNet Core CLI page") environment. Then add [MSBuild](https://github.com/microsoft/setup-msbuild "MSBuild GitHub Action page") to the PATH and execute unit tests using the [dotnet test](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test "DotNet test page") runner console application.
 ```yaml
     - name: Install .NET Core
       uses: actions/setup-dotnet@v1
@@ -62,9 +60,9 @@ On every push to the repo, we take advantage of the [setup-dotnet](https://githu
       run: dotnet test $env:Test_Project_Path
 ```
 
-As mentioned above, we are able to target multiple platforms by authoring the workflow file to define a build matrix, a set of different configurations that are each run in a fresh instance of a virtual environment by the [GitHub-hosted runner](https://help.github.com/en/actions/getting-started-with-github-actions/core-concepts-for-github-actions#github-hosted-runner "GitHub Hosted Runner page").
+As mentioned above, you can target multiple platforms by authoring the workflow file to define a build matrix, a set of different configurations that are each run in a fresh instance of a virtual environment by the [GitHub-hosted runner](https://help.github.com/en/actions/getting-started-with-github-actions/core-concepts-for-github-actions#github-hosted-runner "GitHub Hosted Runner page").
 
-In the continuous integration workflow, we create a release build for x86 and x64 that runs on the latest windows OS installed on the GitHub-hosted runners.  We also define [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables "Configuring and Managing Workflows Using Environment Variables page") for use by the GitHub Actions workflow run.  In our case, we define variables common to both runs defined in the matrix such as the signing certificate name, the relative path to the solution file and the Windows Application Packaging project name.
+In the continuous integration workflow, create a release build for x86 and x64 that runs on the latest windows OS installed on the GitHub-hosted runners.  Then, define [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables "Configuring and Managing Workflows Using Environment Variables page") that are common to all the runs in the matrix such as the signing certificate name, the relative path to the solution file and the Windows Application Packaging project name.
 ```yaml
     strategy:
       matrix:
@@ -81,14 +79,14 @@ In the continuous integration workflow, we create a release build for x86 and x6
       Wap_Project_Name: MyWpfApp.Package.wapproj
 ```
 
-Next, we execute the unit tests in MYWPFApp.Tests by calling ‘donet test’.
+Next, execute the unit tests in MYWPFApp.Tests by calling ‘donet test’.
 ```yaml
     # Test
     - name: Execute Unit Tests
       run: dotnet test $env:Test_Project_Path
 ```
 
-After executing the tests, we restore the application while passing in the RuntimeIdentifier parameter in order to populate the obj folder with the appropriate platform dependencies for use during build.
+After executing the tests, restore the application while passing in the RuntimeIdentifier parameter in order to populate the obj folder with the appropriate platform dependencies for use during build.
 ```yaml
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder
@@ -98,7 +96,7 @@ After executing the tests, we restore the application while passing in the Runti
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
 ```
 
-Once the application has been restored, we are ready to build and create the MSIX.  Rather than build each project separately, we simply build the solution, making sure to pass the target platform, configuration, build mode, whether we want to produce an app bundle, the signing certificate, and certificate password as parameters.
+Once the application has been restored, build and create the MSIX.  Rather than build each project separately, simply build the solution, making sure to pass the target platform, configuration, build mode, whether to produce an app bundle, the signing certificate, and certificate password as parameters.
 ```yaml
     # Build the Windows Application Packaging project
     - name: Build the Windows Application Packaging Project (wapproj) 
@@ -110,7 +108,7 @@ Once the application has been restored, we are ready to build and create the MSI
         TargetPlatform: ${{ matrix.targetplatform }}
 ```
 
-Once we have created the app package, we take advantage of the [upload-artifact](https://github.com/marketplace/actions/upload-artifact "upload-artifact GitHub Action page") GitHub Action to save the artifact. You have the option to download the artifact to test the build or upload the artifact to a website or file share to distribute the application. 
+Once the app package has been created, take advantage of the [upload-artifact](https://github.com/marketplace/actions/upload-artifact "upload-artifact GitHub Action page") GitHub Action to save the artifact. You have the option to download the artifact to test the build or upload the artifact to a website or file share to distribute the application. 
 ```yaml
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
@@ -157,7 +155,9 @@ git push origin --tags
 
 The above commands will add the tag "1.0.0.0" and then `push` the branch and tag to the repo. Learn more about [Git Tagging.](https://git-scm.com/book/en/v2/Git-Basics-Tagging "Basics of Git Tagging")
 
-Channels and environment variables used during the run are defined in the build matrix and will build and create app packages for Dev, Prod_Sideload, and Prod_Store.  Learn how to [configure a build matrix.](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix "Learn how to configure a build matrix page")
+Channels and environment variables used during the run are defined in the build matrix and will build and create app packages for development (Dev), production sideload (Prod_Sideload), and also production for the [Microsoft Store](https://www.microsoft.com/en-us/store/apps/windows "Microsoft Store home page") (Prod_Store). In this example, each channel is built for two configurations: x86 and x64.  However, arm or arm64 are valid configurations as well.
+
+A build matrix can be created to execute jobs across multiple operating systems, build configurations or different supported versions of a programming language. With GitHub Actions, you can define incredibly complex build matrices that can generate up to 256 builds per run! Learn how to [configure a build matrix.](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix "Learn how to configure a build matrix page")
 ```yaml
 jobs:
 
@@ -196,7 +196,7 @@ jobs:
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (ProdStore)
 ```
-Just like the CI workflow, we restore the solution.
+Just like the CI workflow, restore the solution.
 ```yaml
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder
@@ -206,7 +206,7 @@ Just like the CI workflow, we restore the solution.
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
 ```
 
-This time, however, we use GitHub’s ```if``` conditional to build and package the MSIX for Dev and Prod_Sideload (which requires an AppInstaller Uri and Signing Certificate) or for Prod_Store. 
+This time, however, use GitHub’s ```if``` conditional to build and package the MSIX for Dev and Prod_Sideload (which requires an AppInstaller Uri and Signing Certificate) or for Prod_Store. 
 We pass different parameters depending on which channel we are building for.
 ```yaml
     # Build the Windows Application Packaging project for Dev and Prod_Sideload
@@ -268,7 +268,7 @@ Creating channels for the application is a powerful way to create multiple distr
 
 ### Versioning
 
-In both workflows, one of the first things we do is create a version and store version information as environment variables.  Having a different version for every push is especially important when we create a release as each release must have a unique release_name.
+In both workflows, one of the first things to do is create a version and store version information as environment variables.  Having a different version for every push is especially important when a release is created as each release must have a unique release_name.
 
 The [Nerdbank.GitVersioning GitHub Action](https://github.com/AArnott/nbgv "Nerbank.GitVersioning GitHub Action page") sets the build version based on a combination of the included version.json file, and the git height of the version. 
 ```yaml
@@ -293,16 +293,16 @@ See the [Nerdbank.GitVersioning](https://github.com/aarnott/nerdbank.gitversioni
 
 
 ### Signing
-We avoid submitting certificates to the repo if at all possible to ensure security best practices. (Git ignores them by default.) To manage the safe handling of sensitive files like certificates, we take advantage of [GitHub secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets "GitHub Secrets page"), which allow the storage of sensitive information in the repository.
+Avoid submitting certificates to the repo if at all possible to ensure security best practices. (Git ignores them by default.) To manage the safe handling of sensitive files like certificates, take advantage of [GitHub secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets "GitHub Secrets page"), which allow the storage of sensitive information in the repository.
 
-First, we generate a signing certificate in the Windows Application Packaging Project or add an existing signing certificate to the project.  Next, we use PowerShell to encode the .pfx file using Base64 encoding by running the following Powershell script to generate the output file.
+First, generate a signing certificate in the Windows Application Packaging Project or add an existing signing certificate to the project.  Next, use PowerShell to encode the .pfx file using Base64 encoding by running the following Powershell script to generate the output file.
 ```pwsh
 $pfx_cert = Get-Content '.\GitHubActionsDemo.pfx' -Encoding Byte
 [System.Convert]::ToBase64String($pfx_cert) | Out-File 'SigningCertificate_Encoded.txt'
 ```
 
-We open the output file, *SigningCertificate_Encoded.txt*, and copy the string inside.  Finally, we add the string to the repo as a GitHub secret and name it Base64_Encoded_Pfx. [Learn how to add a secret to the workflow.](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/virtual-environments-for-github-hosted-runners#creating-and-using-secrets-encrypted-variables "Creating and using secrets page")
-In the workflow, we added a step to decode the secret, save the .pfx to the build agent, and package the application with the Windows Application Packaging project.
+Open the output file, *SigningCertificate_Encoded.txt*, and copy the string inside.  Finally, add the string to the repo as a GitHub secret and name it Base64_Encoded_Pfx. [Learn how to add a secret to the workflow.](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/virtual-environments-for-github-hosted-runners#creating-and-using-secrets-encrypted-variables "Creating and using secrets page")
+In the workflow, add a step to decode the secret, save the .pfx to the build agent, and package the application with the Windows Application Packaging project.
 ```yaml
     # Decode the Base64 encoded Pfx
     - name: Decode the Pfx
@@ -313,7 +313,7 @@ In the workflow, we added a step to decode the secret, save the .pfx to the buil
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 ```
 
-Once the certificate is decoded and saved to the Windows Application Packaging Project, we use it to sign the package during packaging making sure to pass the signing certificate's password to MSBuild as a parameter.
+Once the certificate is decoded and saved to the Windows Application Packaging Project, use it to sign the package during packaging making sure to pass the signing certificate's password, stored as a GitHub secret, to MSBuild as a parameter.
 ```yaml
     # Build the Windows Application Packaging project for Dev and Prod_Sideload
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
@@ -327,7 +327,7 @@ Once the certificate is decoded and saved to the Windows Application Packaging P
         TargetPlatform: ${{ matrix.TargetPlatform }}
 ```
 
-Finally, to ensure the certificate doesn’t stay on the build machine, we delete the .pfx.
+Finally, to ensure the certificate doesn’t stay on the build machine, delete the .pfx.
 ```yaml
     # Remove the .pfx
     - name: Remove the .pfx
@@ -338,7 +338,7 @@ Finally, to ensure the certificate doesn’t stay on the build machine, we delet
 ### Publisher Profiles
 Publisher Profiles allow developers to store publishing information on their WPF application such as the configuration, target runtime, and deployment mode (whether the application is self contained or framework dependent).  These profiles can be easily reference by the Windows Application Packaging project and used during build and packaging.
 
-To add a Publisher Profile to our WPF application, we right-click the Wpf application and select “Publish.” In the Publish dialog, we select 'New.' In the "Pick a publish target" dialog, we choose the folder or file share to publish the app to and "Create Profile."
+To add a Publisher Profile to the WPF application, right-click the Wpf application and select “Publish.” In the Publish dialog, select 'New.' In the "Pick a publish target" dialog, choose the folder or file share to publish the app to and "Create Profile."
 ![](doc/images/pickAPublishTarget.png)
 
 In the Publish dialog, click "Edit" to customize the profile settings.
@@ -358,10 +358,10 @@ To ensure the settings were added correctly to MyWPFApp.Package, double click on
 ![](doc/images/publishProfileComplete.png)
 
 # Conclusion
-GitHub workflows that leverage the recently-released GitHub Actions are a great way for developers to create and customize continuous integration and continuous deployment pipelines to build, test, package, publish and distribute their application from start to finish entirely in GitHub.
+GitHub workflows that leverage GitHub Actions are a great way for developers to create and customize continuous integration and continuous deployment pipelines to build, test, package, publish and distribute their application from start to finish entirely in GitHub.
 
 To learn more about other GitHub Actions that you can add to your pipelines, take a look at the [GitHub Marketplace](https://github.com/marketplace?type=actions "GitHub Marketplace page").  For more information on GitHub Actions, check out the [GitHub Actions](https://github.com/features/actions "GitHub Actions home page") home page.
 
-We are always open to your feedback.  Please feel free to email the team at [devdeploymenttools@microsoft.com](mailto:devdeploymenttools@microsoft.com "Email us at devdeploymenttools at Microsoft.com").
+We are always open to your feedback.  Please feel free to email us at [devdeploymenttools@microsoft.com](mailto:devdeploymenttools@microsoft.com "Email us at devdeploymenttools at Microsoft.com").
 
 Our repo is open source and welcomes contributions and suggestions.  Please see [Contributing.md](https://github.com/microsoft/github-actions-for-desktop-apps/blob/master/CONTRIBUTING.md "Contibuting.md page") for more information on how to submit a PR to the repo.
