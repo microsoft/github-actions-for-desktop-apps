@@ -33,8 +33,6 @@ jobs:
     # Use Nerdbank.GitVersioning to set version variables: https://github.com/AArnott/nbgv
     - name: Use Nerdbank.GitVersioning to set version variables
       uses: AArnott/nbgv@v0.3
-      with:
-        path: version.json
 
     # Install the .NET Core workload
     - name: Install .NET Core
