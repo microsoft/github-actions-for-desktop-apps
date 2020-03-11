@@ -80,6 +80,7 @@ jobs:
       uses: aarnott/nbgv@v0.3
       with:
         setAllVars: true
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
     # Install the .NET Core workload
     - name: Install .NET Core
