@@ -128,7 +128,7 @@ jobs:
       env:
         AppxBundle: Never
         AppInstallerUri: ${{ matrix.DistributionUrl }}
-        BuildMode: SideLoadOnly
+        BuildMode: SideloadOnly
         Configuration: ${{ matrix.Configuration }}
         GenerateAppInstallerFile: True
         TargetPlatform: ${{ matrix.targetplatform }}
@@ -140,7 +140,7 @@ jobs:
       env:
         AppxBundle: Never
         AppxPackageSigningEnabled: False
-        BuildMode: StoreOnly
+        BuildMode: StoreUpload
         Configuration: ${{ matrix.Configuration }}
         GenerateAppInstallerFile: False
         TargetPlatform: ${{ matrix.targetplatform }}
