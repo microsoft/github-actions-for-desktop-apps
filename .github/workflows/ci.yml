@@ -86,7 +86,7 @@ jobs:
       run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
       env:
         AppxBundle: Never
-        BuildMode: SideLoadOnly
+        BuildMode: SideloadOnly
         Configuration: Debug
         TargetPlatform: ${{ matrix.targetplatform }}
 
