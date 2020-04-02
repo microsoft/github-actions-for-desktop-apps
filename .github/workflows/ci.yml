@@ -25,6 +25,7 @@ jobs:
     runs-on: windows-latest
 
     env:
+      App_Packages_Directory:  AppPackages
       SigningCertificate: GitHubActionsDemo.pfx
       Solution_Path: MyWpfApp.sln
       Test_Project_Path: MyWpfApp.Tests\MyWpfApp.Tests.csproj
@@ -98,4 +99,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: MSIX Package
-        path: MyWpfApp.Package\AppPackages\
+        path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
