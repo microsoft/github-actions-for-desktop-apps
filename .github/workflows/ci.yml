@@ -76,7 +76,7 @@ jobs:
     - name:  Restore the Wpf application to populate the obj folder with the RuntimeIdentifiers
       run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration
       env:
-        Configuration: {{ matrix.configuration }}
+        Configuration: ${{ matrix.configuration }}
 
     # Decode the Base64 encoded Pfx
     - name: Decode the Pfx
@@ -90,7 +90,7 @@ jobs:
     - name: Build the Windows Application Packaging Project (wapproj)
       run: msbuild $env:Wap_Project_Directory\$env:Wap_Project_Name /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=$env:Signing_Certificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
       env:
-        Configuration: {{ matrix.configuration }}
+        Configuration: ${{ matrix.configuration }}
 
     # Remove the .pfx
     - name: Remove the .pfx
