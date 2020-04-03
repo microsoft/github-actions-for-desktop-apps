@@ -51,7 +51,7 @@
     <!-- Generate .appinstaller and HTML -->
     <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
     <!-- Generate architecture specific packages. Values: x86|x64|arm|arm64 -->
-    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
     <!-- App installer file base url -->
     <AppInstallerUri>https://microsoft.github.io/github-actions-for-desktop-apps-distribution-local</AppInstallerUri>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
