@@ -73,7 +73,7 @@ jobs:
       run: dotnet test $env:Test_Project_Directory\$env:Test_Project_Name
 
     # Restore the application
-    - name:  Restore the Wpf application to populate the obj folder with the RuntimeIdentifiers
+    - name:  Restore the Wpf application to populate the obj folder with RuntimeIdentifiers
       run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
@@ -83,7 +83,7 @@ jobs:
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $currentDirectory = Get-Location
-        $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
+        $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:Signing_Certificate
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
     # Build the Windows Application Packaging project
