@@ -1,9 +1,16 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT license.
+# This workflow will build, test and create app packages for a Wpf project built on Net Core.
+#
+# To configure this workflow:
+#
+# 1.
+#
+# 2.
+#
+# For more information on GitHub Actions, refer to https://github.com/features/actions
+# For a complete CI/CD sample workflow to get started with GitHub Action workflows for Desktop Applications,
+# refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-# This continuous integration pipeline is triggered anytime a user pushes code to the repo.
-# This pipeline builds the Wpf project, runs unit tests, then saves the MSIX build artifact.
-name:  Wpf Continuous Integration
+name:  Build and deploy desktop application
 
 # Trigger on every master branch push and pull request
 on:
@@ -25,19 +32,15 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Appx_Bundle: Always
-      App_Packages_Directory: AppPackages
-      Appx_Bundle_Platforms: x86|x64
-      Appx_Package_Build_Mode: StoreUpload   # Generates the .msixupload/.appxupload file and the _Test folder for sideloading.
-                                             # Use SideloadOnly to generate the _Test folder for sideloading only
-      Signing_Certificate: GitHubActionsDemo.pfx
-      Solution_Path: MyWpfApp.sln
-      Test_Project_Directory: MyWpfApp.Tests
-      Test_Project_Name: MyWpfApp.Tests.csproj
-      Wpf_Project_Directory: MyWpfApp
-      Wpf_Project_Name: MyWpfApp.csproj
-      Wap_Project_Directory: MyWpfApp.Package
-      Wap_Project_Name: MyWpfApp.Package.wapproj
+      Appx_Bundle: Always                                           # Creates an .msixbundle/.appxbundle with the .msix/.appx files for the platform specified.
+      App_Packages_Directory: AppPackages                           # The name of the directory that will contain the application packages
+      Appx_Bundle_Platforms: x86|x64                                # Include x86 and x64 platforms in the bundle.
+      Appx_Package_Build_Mode: StoreUpload                          # Generates the .msixupload/.appxupload file and the _Test folder for sideloading.
+      Signing_Certificate: GitHubActionsDemo.pfx                    # The name of the .pfx that will be created and consumed during packaging
+      Solution_Name: MyWpfApp.sln                                   #
+      Test_Project_Path: MyWpfApp.Tests\MyWpfApp.Tests.csproj       #
+      Wap_Project_Directory: MyWpfApp.Package                       #
+      Wap_Project_Path: MyWpfApp.Package\MyWpfApp.Package.wapproj   #
 
     steps:
     - name: Checkout
@@ -70,11 +73,11 @@ jobs:
 
     # Test
     - name: Execute Unit Tests
-      run: dotnet test $env:Test_Project_Directory\$env:Test_Project_Name
+      run: dotnet test $env:Test_Project_Path
 
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder with RuntimeIdentifiers
-      run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
@@ -82,13 +85,12 @@ jobs:
     - name: Decode the Pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-        $currentDirectory = Get-Location
-        $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:Signing_Certificate
+        $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath $env:Signing_Certificate
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
     # Build the Windows Application Packaging project
     - name: Build the Windows Application Packaging Project (wapproj)
-      run: msbuild $env:Wap_Project_Directory\$env:Wap_Project_Name /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=$env:Signing_Certificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=$env:Signing_Certificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
       env:
         Configuration: ${{ matrix.configuration }}
 
