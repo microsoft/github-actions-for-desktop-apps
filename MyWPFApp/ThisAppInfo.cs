@@ -21,7 +21,7 @@ namespace MyWPFApp
             {
                 return Package.Current.DisplayName;
             }
-            return "This is not packaged";
+            return "Not packaged";
         }
 
         internal static string GetThisAssemblyVersion()
