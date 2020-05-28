@@ -51,7 +51,7 @@
     <!-- Generate .appinstaller and HTML -->
     <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
     <!-- Generate architecture specific packages. Values: x86|x64|arm|arm64 -->
-    <AppxBundlePlatforms>x86</AppxBundlePlatforms>
+    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
     <!-- App installer file base url -->
     <AppInstallerUri>D:\github-actions-for-desktop-apps\MyWPFApp.Package\AppPackages\</AppInstallerUri>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
