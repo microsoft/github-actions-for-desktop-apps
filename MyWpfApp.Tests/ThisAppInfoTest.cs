@@ -8,12 +8,6 @@ namespace MyWPFApp.Tests
 {
     public class Tests
     {
-        [SetUp]
-        public void Setup()
-        {
-            var thisAppInfo = new ThisAppInfo();
-        }
-
         [Test]
         public void GetDisplayName()
         {
