@@ -29,7 +29,7 @@ The benefits of kicking off a CI run on every push are multi-fold:
 * Quickly identify breaking changes
 * Create a testable debug build
 * Continuously run tests to identify and eliminate bugs, improving code quality
-* Keep workflow relatively lightwight by only testing configurations necessary to ensure good quality
+* Keep workflow relatively lightweight by only testing configurations necessary to ensure good quality
 
 The cd.yml file defines our continuous delivery workflow used to build, sign, package and archive release assets for every configuration that is planned for release.
 
@@ -342,7 +342,7 @@ Finally, to ensure the certificate doesn’t stay on the build machine, delete t
 ```
 
 ### Publisher Profiles
-Publisher Profiles allow developers to store publishing information on their WPF application such as the configuration, target runtime, and deployment mode (whether the application is self contained or framework dependent).  These profiles can be easily reference by the Windows Application Packaging project and used during build and packaging.
+Publisher Profiles allow developers to store publishing information on their WPF application such as the configuration, target runtime, and deployment mode (whether the application is self contained or framework dependent).  These profiles can be easily referenced by the Windows Application Packaging project and used during build and packaging.
 
 To add a Publisher Profile to the WPF application, right-click the Wpf application and select “Publish.” In the Publish dialog, select 'New.' In the "Pick a publish target" dialog, choose the folder or file share to publish the app to and "Create Profile."
 ![](doc/images/pickAPublishTarget.png)
@@ -370,4 +370,4 @@ To learn more about other GitHub Actions that you can add to your pipelines, tak
 
 We are always open to your feedback.  Please feel free to email us at [devdeploymenttools@microsoft.com](mailto:devdeploymenttools@microsoft.com "Email us at devdeploymenttools at Microsoft.com").
 
-Our repo is open source and welcomes contributions and suggestions.  Please see [Contributing.md](https://github.com/microsoft/github-actions-for-desktop-apps/blob/master/CONTRIBUTING.md "Contibuting.md page") for more information on how to submit a PR to the repo.
+Our repo is open source and welcomes contributions and suggestions.  Please see [Contributing.md](https://github.com/microsoft/github-actions-for-desktop-apps/blob/master/CONTRIBUTING.md "Contributing.md page") for more information on how to submit a PR to the repo.
