@@ -41,7 +41,7 @@ jobs:
 
     # Use Nerdbank.GitVersioning to set version variables: https://github.com/AArnott/nbgv
     - name: Use Nerdbank.GitVersioning to set version variables
-      uses: aarnott/nbgv@v0.3
+      uses: dotnet/nbgv@v0.3.1
       with:
         setAllVars: true
 
