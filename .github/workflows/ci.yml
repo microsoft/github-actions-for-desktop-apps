@@ -32,6 +32,7 @@ jobs:
       Wpf_Project_Path: MyWpfApp\MyWpfApp.csproj
       Wap_Project_Directory: MyWpfApp.Package
       Wap_Project_Name: MyWpfApp.Package.wapproj
+      Actions_Allow_Unsecure_Commands: true # Allows AddPAth and SetEnv commands
 
     steps:
     - name: Checkout
