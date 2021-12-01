@@ -79,7 +79,7 @@ jobs:
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
     
     - name: NuGet Restore Wapp Project
-      run: msbuild restore $env:WappProject_Path -ConfigFile $env:NuGetConfig_Path
+      run: msbuild $env:WappProject_Path /t:Restore
     
     # Decode the Base64 encoded Pfx
     - name: Decode the Pfx
