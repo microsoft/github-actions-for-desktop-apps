@@ -17,8 +17,6 @@
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.244" PrivateAssets="all" />
     <PackageReference Include="OSVersionHelper" Version="1.1.24" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
-    <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.5" />
-    <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.5" />
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.4.1" />
   </ItemGroup>
 
