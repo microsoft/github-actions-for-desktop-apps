@@ -95,7 +95,7 @@ jobs:
       env:
         AppxBundle: Never
         BuildMode: SideloadOnly
-        AppxPackageDir: ${{ env.GITHUB_ACTION_PATH}}\${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
+        AppxPackageDir: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
         Configuration: Debug
         TargetPlatform: ${{ matrix.targetplatform }}
 
@@ -105,7 +105,7 @@ jobs:
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: MSIX Package
-        path: ${{ env.GITHUB_ACTION_PATH}}\${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
+        path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
