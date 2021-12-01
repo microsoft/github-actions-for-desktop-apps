@@ -91,10 +91,11 @@ jobs:
 
     # Build the Windows Application Packaging project
     - name: Build the Windows Application Packaging Project (wapproj)
-      run: msbuild $env:Solution_Path /t:Restore /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      run: msbuild $env:Solution_Path /t:Restore /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir=$env:AppxPackageDir /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
       env:
         AppxBundle: Never
         BuildMode: SideloadOnly
+        AppxPackageDir: "${{ env.GITHUB_ACTION_PATH}}\${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}"
         Configuration: Debug
         TargetPlatform: ${{ matrix.targetplatform }}
 
@@ -107,4 +108,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
+        path: "${{ env.GITHUB_ACTION_PATH}}\${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}"
