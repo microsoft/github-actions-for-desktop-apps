@@ -206,8 +206,9 @@ jobs:
     # Build the Windows Application Packaging project for Dev and Prod_Sideload
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
       if: matrix.ChannelName != 'Prod_Store'
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:CertFilePath /p:PackageCertificatePassword=$env:CertPrivateKey 
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:GenerateAppxPackageOnBuild=$env:GeneratePackage /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:CertFilePath /p:PackageCertificatePassword=$env:CertPrivateKey 
       env:
+        GeneratePackage: true
         AppxBundle: Never
         AppInstallerUri: ${{ matrix.DistributionUrl }}
         BuildMode: SideloadOnly
@@ -219,9 +220,10 @@ jobs:
 
     # Build the Windows Application Packaging project for Prod_Store
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:GenerateAppInstallerFile=$env:GenerateAppInstallerFile /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration/p:GenerateAppxPackageOnBuild=$env:GeneratePackage /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:GenerateAppInstallerFile=$env:GenerateAppInstallerFile /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
       if: matrix.ChannelName == 'Prod_Store'
       env:
+        GeneratePackage: true
         AppxBundle: Never
         AppxPackageSigningEnabled: False
         BuildMode: StoreUpload
