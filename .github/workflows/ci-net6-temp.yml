@@ -79,6 +79,8 @@ jobs:
     - name: NuGet Restore Wapp Project
       run: nuget restore $env:WappProject_Path
     
+    # ************* TO BE UNCOMMENTED AFTER CERTIFICATE IS RENEWED ************* #
+
     # Decode the Base64 encoded Pfx
     # - name: Decode the Pfx
     #   run: |
@@ -100,20 +102,24 @@ jobs:
     # # Remove the .pfx
     # - name: Remove the .pfx
     #   run: Remove-Item -path $env:Wap_Project_Directory\$env:SigningCertificate
+    
+    # # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
+    # - name: Upload build artifacts
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: MSIX Package
+    #     path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
 
     # ************** TEMPORARY - UNTIL CODE SIGNING CERT IS UPDATED ************** #
 
     - name: Create self-signed certificate (TEMPORARY)
-      id: create-cert
+      id: create_cert
       run: |
         $cert = New-SelfSignedCertificate -Type Custom -Subject "CN=GitHubActionsDemo, O=Contoso Corporation, C=US" -KeyUsage DigitalSignature -FriendlyName "MyWPFApp.DevOpsDemo.Local" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
-
         $pathInStore = 'Cert:\CurrentUser\My\' + $cert.thumbprint 
-        
         $currentDirectory = Get-Location
         $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
-
-        $pwd = ConvertTo-SecureString -String "selfSignedCertP@ssw0rd" -Force -AsPlainText 
+        $pwd = ConvertTo-SecureString -String "uselessCertificateP@ssw0rd" -Force -AsPlainText 
         Export-PfxCertificate -cert $pathInStore -FilePath $certificatePath -Password $pwd
 
         # This creates an output variable, which we can use in subsequent steps/jobs
@@ -128,14 +134,24 @@ jobs:
         AppxPackageDir: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
         Configuration: Debug
         TargetPlatform: ${{ matrix.targetplatform }}
-        CertFilePath: ${{ steps.create-cert.outputs.CERT_PATH }}
-        CertPrivateKey: "selfSignedCertP@ssw0rd"
-
-    # ************** END TEMPORARY ************** #
+        CertFilePath: ${{ steps.create_cert.outputs.CERT_PATH }}
+        CertPrivateKey: "uselessCertificateP@ssw0rd"
+    
+    - name: Create archive
+      id: create_archive
+      run: |
+        $source = $env:Wap_Project_Directory\$env:App_Packages_Directory\*
+        $destination = $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
+        Compress-Archive -Path $source -DestinationPath $destination
+        echo "::set-output name=archive_path::$destination"
+      env:
+        App_Packages_Archive: AppPackages.zip
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
+        path: ${{ steps.create_archive.outputs.archive_path }}
+
+    # ************** END TEMPORARY ************** #
