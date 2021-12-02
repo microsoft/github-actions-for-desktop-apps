@@ -233,7 +233,7 @@ jobs:
     
     - name: Create archive
       id: create_archive
-      run: Compress-Archive -Path "$env:Wap_Project_Directory\$env:App_Packages_Directory\*" -DestinationPath $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
+      run: Compress-Archive -Path $env:Wap_Project_Directory\$env:App_Packages_Directory\* -DestinationPath $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
     
     # Upload the bundle: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts

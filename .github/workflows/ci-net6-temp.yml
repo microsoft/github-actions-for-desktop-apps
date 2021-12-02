@@ -29,7 +29,7 @@ jobs:
       Wpf_Project_Path: MyWpfApp\MyWpfApp.csproj
       Wap_Project_Directory: MyWpfApp.Package
       Wap_Project_Name: MyWpfApp.Package.wapproj
-      Actions_Allow_Unsecure_Commands: true # Allows AddPAth and SetEnv commands
+      Actions_Allow_Unsecure_Commands: true # Allows AddPath and SetEnv commands
 
     steps:
     - name: Checkout
@@ -138,17 +138,56 @@ jobs:
         CertFilePath: ${{ steps.create_cert.outputs.CERT_PATH }}
         CertPrivateKey: "uselessCertificateP@ssw0rd"
     
-    - name: Create archive
-      id: create_archive
-      run: Compress-Archive -Path $env:Wap_Project_Directory\$env:App_Packages_Directory\* -DestinationPath $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
-      env:
-        App_Packages_Archive: AppPackages.zip
+    - name: Copy MSIX files into temporary working folder
+      id: gather
+      run: |
+        $currentDirectory = Get-Location
+        $msixFiles = Get-ChildItem -Path $currentDirectory -Recurse -Include MyWpfApp*.msix
+
+        $count = $msixFiles.count
+
+        if($count -gt 0){
+          echo "Discovered $count MSIX files"
+        } else {
+          $appxFiles = Get-ChildItem -Path $currentDirectory -Recurse -Include MyWpfApp*.appx
+
+          $count = $appxFiles.count
+
+          if($count -gt 0){
+            echo "Discovered $count APPX files"
+            $msixFiles = $appxFiles
+          } else {
+            echo "There were no MSIX or APPX files discovered."
+            exit 1
+          }
+        }
+
+        $zipFilesFolder = Join-Path -Path $currentDirectory -ChildPath "ZippedUpArtifacts\"
+        New-Item -Path $msixBundlesFolder -ItemType Directory -Force
+
+        $msixFiles | ForEach-Object {
+          $zipExt = ".zip"
+          $zipName = "$_.FullName$zipExt"
+          $parent = $_.PSParentPath
+          $destintation = $zipFilesFolder\$zipName
+          Compress-Archive -Path $_.PSParentPath -DestinationPath $destintation
+
+          echo "Compressed $destintation"
+        }
+
+        Compress-Archive -Path $zipFilesFolder\* -DestinationPath $env:Wap_Project_Directory\AppPackages.zip
+
+    # - name: Create archive
+    #   id: create_archive
+    #   run: Compress-Archive -Path $env:Wap_Project_Directory\$env:App_Packages_Directory\* -DestinationPath $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
+    #   env:
+    #     App_Packages_Archive: AppPackages.zip
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: MSIX Package
-        path: $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
-
+        path: $env:Wap_Project_Directory\AppPackages.zip
+    
     # ************** END TEMPORARY ************** #
