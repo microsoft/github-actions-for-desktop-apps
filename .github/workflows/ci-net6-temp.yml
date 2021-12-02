@@ -162,20 +162,23 @@ jobs:
           }
         }
 
-        $zipFilesFolder = Join-Path -Path $currentDirectory -ChildPath "ZippedUpArtifacts\"
-        New-Item -Path $msixBundlesFolder -ItemType Directory -Force
+        $zipFilesFolder = Join-Path -Path $currentDirectory -ChildPath "Artifacts"
+        New-Item -Path $zipFilesFolder -ItemType Directory -Force
 
         $msixFiles | ForEach-Object {
           $zipExt = ".zip"
-          $zipName = "$_.FullName$zipExt"
+          $fileName = $_.Name
+          $zipName = "$fileName$zipExt"
           $parent = $_.PSParentPath
-          $destintation = $zipFilesFolder\$zipName
+          $destintation = Join-Path -Path $zipFilesFolder -ChildPath $zipName
           Compress-Archive -Path $_.PSParentPath -DestinationPath $destintation
 
           echo "Compressed $destintation"
         }
+        
+        $finalDestination = Join-Path -Path "$env:Wap_Project_Directory -Child-Path "AppPackages.zip"
 
-        Compress-Archive -Path $zipFilesFolder\* -DestinationPath $env:Wap_Project_Directory\AppPackages.zip
+        Compress-Archive -Path "$zipFilesFolder\*" -DestinationPath $finalDestination
 
     # - name: Create archive
     #   id: create_archive
