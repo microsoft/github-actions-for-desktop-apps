@@ -17,7 +17,7 @@ name:  NET 6.0 CD (temporary)
 #   git push origin --tags
 on:
   push:
-      - lance/net6-release-test
+    - lance/net6-release-test
 
 jobs:
 
