@@ -176,7 +176,7 @@ jobs:
           echo "Compressed $destintation"
         }
         
-        $finalDestination = Join-Path -Path "$env:Wap_Project_Directory -Child-Path "AppPackages.zip"
+        $finalDestination = Join-Path -Path $env:Wap_Project_Directory -Child-Path "AppPackages.zip"
 
         Compress-Archive -Path "$zipFilesFolder\*" -DestinationPath $finalDestination
 
