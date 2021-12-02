@@ -19,7 +19,7 @@ jobs:
       matrix:
         targetplatform: [x86, x64]
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
       App_Packages_Directory: AppPackages
