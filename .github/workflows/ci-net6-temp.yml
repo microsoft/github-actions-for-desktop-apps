@@ -3,7 +3,7 @@
 
 # This continuous integration pipeline is triggered anytime a user pushes code to the repo.
 # This pipeline builds the Wpf project, runs unit tests, then saves the MSIX build artifact.
-name:  Temporary NET 6.0 Workflow
+name: NET 6.0 CI (temporary)
 
 # Trigger on every master branch push and pull request
 on:
@@ -47,9 +47,7 @@ jobs:
     - name: Install .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: |
-          5.0.x
-          6.0.x
+        dotnet-version: "6.0.x"
 
     # Add  MsBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
