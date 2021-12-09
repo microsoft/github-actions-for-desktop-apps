@@ -118,128 +118,68 @@ jobs:
     - name: NuGet Restore Wapp Project
       run: nuget restore $env:WappProject_Path
     
-    # ************* TO BE UNCOMMENTED AFTER CERTIFICATE IS RENEWED, SKIP SECTION ************* #
-
-    # # Decode the Base64 encoded Pfx
-    # - name: Decode the Pfx
-    #   run: |
-    #     $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-    #     $currentDirectory = Get-Location
-    #     $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
-    #     [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
-    #   if: matrix.ChannelName != 'Prod_Store'
-    
-    # # Build the Windows Application Packaging project for Dev and Prod_Sideload
-    # - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
-    #   run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
-    #   if: matrix.ChannelName != 'Prod_Store'
-    #   env:
-    #     AppxBundle: Never
-    #     AppInstallerUri: ${{ matrix.DistributionUrl }}
-    #     BuildMode: SideloadOnly
-    #     Configuration: ${{ matrix.Configuration }}
-    #     GenerateAppInstallerFile: True
-    #     TargetPlatform: ${{ matrix.targetplatform }}
-
-    # # Build the Windows Application Packaging project for Prod_Store
-    # - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
-    #   run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:GenerateAppInstallerFile=$env:GenerateAppInstallerFile /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
-    #   if: matrix.ChannelName == 'Prod_Store'
-    #   env:
-    #     AppxBundle: Never
-    #     AppxPackageSigningEnabled: False
-    #     BuildMode: StoreUpload
-    #     Configuration: ${{ matrix.Configuration }}
-    #     GenerateAppInstallerFile: False
-    #     TargetPlatform: ${{ matrix.targetplatform }}
-
-    # # Remove the .pfx
-    # - name: Remove the .pfx
-    #   run: Remove-Item -path $env:Wap_Project_Directory\$env:SigningCertificate
-    #   if: matrix.ChannelName != 'Prod_Store'
-
-    # # Archive the package
-    # - name: Create archive
-    #   run: Compress-Archive -Path $env:Wap_Project_Directory\$env:App_Packages_Directory\* -DestinationPath $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
-
-    # # Create the release:  https://github.com/actions/create-release
-    # - name: Create release
-    #   id: create_release
-    #   uses: actions/create-release@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-    #   with:
-    #     tag_name: ${{ github.ref}}.${{matrix.ChannelName}}.${{ matrix.targetplatform }}
-    #     release_name:  ${{ github.ref }}.${{ matrix.ChannelName }}.${{ matrix.targetplatform }}
-    #     draft: false
-    #     prerelease: false
-
-    # # Upload release asset:   https://github.com/actions/upload-release-asset
-    # - name: Update release asset
-    #   id: upload-release-asset
-    #   uses: actions/upload-release-asset@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: ${{ steps.create_release.outputs.upload_url }}  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-    #     asset_path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}\${{ env.App_Packages_Archive }}
-    #     asset_name: ${{ env.App_Packages_Archive }}
-    #     asset_content_type: application/zip
-   
-   
-    # ************** TEMPORARY - UNTIL CODE SIGNING CERT IS UPDATED ************** #
-
-    - name: Create self-signed certificate (TEMPORARY)
-      id: create_cert
-      if: matrix.ChannelName != 'Prod_Store'
+    # Decode the Base64 encoded Pfx
+    - name: Decode the Pfx
       run: |
-        $cert = New-SelfSignedCertificate -Type Custom -Subject "CN=GitHubActionsDemo" -KeyUsage DigitalSignature -FriendlyName "MyWPFApp.DevOpsDemo.Local" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
-        $pathInStore = 'Cert:\CurrentUser\My\' + $cert.thumbprint 
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $currentDirectory = Get-Location
         $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
-        $pwd = ConvertTo-SecureString -String "uselessCertificateP@ssw0rd" -Force -AsPlainText 
-        Export-PfxCertificate -cert $pathInStore -FilePath $certificatePath -Password $pwd
-
-        # This creates an output variable, which we can use in subsequent steps/jobs
-        echo "::set-output name=CERT_PATH::$certificatePath"
+        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+      if: matrix.ChannelName != 'Prod_Store'
     
     # Build the Windows Application Packaging project for Dev and Prod_Sideload
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
       if: matrix.ChannelName != 'Prod_Store'
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:GenerateAppxPackageOnBuild=$env:GeneratePackage /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:CertFilePath /p:PackageCertificatePassword=$env:CertPrivateKey 
       env:
-        GeneratePackage: true
         AppxBundle: Never
         AppInstallerUri: ${{ matrix.DistributionUrl }}
         BuildMode: SideloadOnly
         Configuration: ${{ matrix.Configuration }}
         GenerateAppInstallerFile: True
         TargetPlatform: ${{ matrix.targetplatform }}
-        CertFilePath: ${{ steps.create_cert.outputs.CERT_PATH }}
-        CertPrivateKey: "uselessCertificateP@ssw0rd"
 
     # Build the Windows Application Packaging project for Prod_Store
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration/p:GenerateAppxPackageOnBuild=$env:GeneratePackage /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:GenerateAppInstallerFile=$env:GenerateAppInstallerFile /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:GenerateAppInstallerFile=$env:GenerateAppInstallerFile /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
       if: matrix.ChannelName == 'Prod_Store'
       env:
-        GeneratePackage: true
         AppxBundle: Never
         AppxPackageSigningEnabled: False
         BuildMode: StoreUpload
         Configuration: ${{ matrix.Configuration }}
         GenerateAppInstallerFile: False
         TargetPlatform: ${{ matrix.targetplatform }}
-    
-    - name: Create archive
-      id: create_archive
-      run: Compress-Archive -Path $env:Wap_Project_Directory\$env:App_Packages_Directory\* -DestinationPath $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
-    
-    # Upload the bundle: https://github.com/marketplace/actions/upload-artifact
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{matrix.ChannelName}}.${{ matrix.targetplatform }}
-        path: $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
 
-    # ************** END TEMPORARY ************** #
+    # Remove the .pfx
+    - name: Remove the .pfx
+      run: Remove-Item -path $env:Wap_Project_Directory\$env:SigningCertificate
+      if: matrix.ChannelName != 'Prod_Store'
+
+    # Archive the package
+    - name: Create archive
+      run: Compress-Archive -Path $env:Wap_Project_Directory\$env:App_Packages_Directory\* -DestinationPath $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
+
+    # Create the release:  https://github.com/actions/create-release
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref}}.${{matrix.ChannelName}}.${{ matrix.targetplatform }}
+        release_name:  ${{ github.ref }}.${{ matrix.ChannelName }}.${{ matrix.targetplatform }}
+        draft: false
+        prerelease: false
+
+    # Upload release asset:   https://github.com/actions/upload-release-asset
+    - name: Update release asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+        asset_path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}\${{ env.App_Packages_Archive }}
+        asset_name: ${{ env.App_Packages_Archive }}
+        asset_content_type: application/zip

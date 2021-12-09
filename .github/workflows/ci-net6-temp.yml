@@ -79,118 +79,31 @@ jobs:
     - name: NuGet Restore Wapp Project
       run: nuget restore $env:WappProject_Path
     
-    # ************* TO BE UNCOMMENTED AFTER CERTIFICATE IS RENEWED ************* #
-
     # Decode the Base64 encoded Pfx
-    # - name: Decode the Pfx
-    #   run: |
-    #     $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-    #     $currentDirectory = Get-Location
-    #     $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
-    #     [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
-
-    # # Build the Windows Application Packaging project
-    # - name: Build the Windows Application Packaging Project (wapproj)
-    #   run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir=$env:AppxPackageDir /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
-    #   env:
-    #     AppxBundle: Never
-    #     BuildMode: SideloadOnly
-    #     AppxPackageDir: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
-    #     Configuration: Debug
-    #     TargetPlatform: ${{ matrix.targetplatform }}
-
-    # # Remove the .pfx
-    # - name: Remove the .pfx
-    #   run: Remove-Item -path $env:Wap_Project_Directory\$env:SigningCertificate
-    
-    # # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
-    # - name: Upload build artifacts
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: MSIX Package
-    #     path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
-
-    # ************** TEMPORARY - UNTIL CODE SIGNING CERT IS UPDATED ************** #
-
-    - name: Create self-signed certificate (TEMPORARY)
-      id: create_cert
+    - name: Decode the Pfx
       run: |
-        $cert = New-SelfSignedCertificate -Type Custom -Subject "CN=GitHubActionsDemo" -KeyUsage DigitalSignature -FriendlyName "MyWPFApp.DevOpsDemo.Local" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
-        $pathInStore = 'Cert:\CurrentUser\My\' + $cert.thumbprint 
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $currentDirectory = Get-Location
         $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
-        $pwd = ConvertTo-SecureString -String "uselessCertificateP@ssw0rd" -Force -AsPlainText 
-        Export-PfxCertificate -cert $pathInStore -FilePath $certificatePath -Password $pwd
-
-        # This creates an output variable, which we can use in subsequent steps/jobs
-        echo "::set-output name=CERT_PATH::$certificatePath"
+        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
     # Build the Windows Application Packaging project
     - name: Build the Windows Application Packaging Project (wapproj)
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:GenerateAppxPackageOnBuild=$env:GeneratePackage /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir=$env:AppxPackageDir /p:PackageCertificateKeyFile=$env:CertFilePath /p:PackageCertificatePassword=$env:CertPrivateKey 
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir=$env:AppxPackageDir /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
       env:
-        GeneratePackage: true
         AppxBundle: Never
         BuildMode: SideloadOnly
         AppxPackageDir: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
         Configuration: Debug
         TargetPlatform: ${{ matrix.targetplatform }}
-        CertFilePath: ${{ steps.create_cert.outputs.CERT_PATH }}
-        CertPrivateKey: "uselessCertificateP@ssw0rd"
+
+    # Remove the .pfx
+    - name: Remove the .pfx
+      run: Remove-Item -path $env:Wap_Project_Directory\$env:SigningCertificate
     
-    - name: Copy MSIX files into temporary working folder
-      id: gather
-      run: |
-        $currentDirectory = Get-Location
-        $msixFiles = Get-ChildItem -Path $currentDirectory -Recurse -Include MyWpfApp*.msix
-
-        $count = $msixFiles.count
-
-        if($count -gt 0){
-          echo "Discovered $count MSIX files"
-        } else {
-          $appxFiles = Get-ChildItem -Path $currentDirectory -Recurse -Include MyWpfApp*.appx
-
-          $count = $appxFiles.count
-
-          if($count -gt 0){
-            echo "Discovered $count APPX files"
-            $msixFiles = $appxFiles
-          } else {
-            echo "There were no MSIX or APPX files discovered."
-            exit 1
-          }
-        }
-
-        $zipFilesFolder = Join-Path -Path $currentDirectory -ChildPath "Artifacts"
-        New-Item -Path $zipFilesFolder -ItemType Directory -Force
-
-        $msixFiles | ForEach-Object {
-          $zipExt = ".zip"
-          $fileName = $_.Name
-          $zipName = "$fileName$zipExt"
-          $parent = $_.PSParentPath
-          $destintation = Join-Path -Path $zipFilesFolder -ChildPath $zipName
-          Compress-Archive -Path $_.PSParentPath -DestinationPath $destintation
-
-          echo "Compressed $destintation"
-        }
-        
-        $finalDestination = Join-Path -Path $env:Wap_Project_Directory -ChildPath "AppPackages.zip"
-
-        Compress-Archive -Path "$zipFilesFolder\*" -DestinationPath $finalDestination
-
-    # - name: Create archive
-    #   id: create_archive
-    #   run: Compress-Archive -Path $env:Wap_Project_Directory\$env:App_Packages_Directory\* -DestinationPath $env:Wap_Project_Directory\$env:App_Packages_Directory\$env:App_Packages_Archive
-    #   env:
-    #     App_Packages_Archive: AppPackages.zip
-
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: MSIX Package
-        path: $env:Wap_Project_Directory\AppPackages.zip
-    
-    # ************** END TEMPORARY ************** #
+        path: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
