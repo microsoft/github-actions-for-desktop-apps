@@ -102,9 +102,35 @@ jobs:
     - name: Remove the .pfx
       run: Remove-Item -path $env:Wap_Project_Directory\$env:SigningCertificate
     
+    - name: Find MSIX files
+      id: gather
+      shell: pwsh
+      run: |
+        $currentDirectory = Get-Location
+        $msixFiles = Get-ChildItem -Path $currentDirectory -Recurse -Include MyWPFApp*.msix
+
+        $count = $msixFiles.count
+
+        if($count -gt 0){
+          echo "Discovered $count MSIX files"
+        } else {
+          echo "There were NO MSIX files in the source folder."
+          exit 1
+        }
+        
+        $tempMsixFolder = Join-Path -Path $currentDirectory -ChildPath "MsixFiles\"
+        New-Item -Path $tempMsixFolder -ItemType Directory -Force
+
+        $msixFiles | ForEach-Object {
+          Copy-Item -Path $_ -Destination $tempMsixFolder
+          echo "Successfully copied $_ to $tempMsixFolder"
+        }
+
+        echo "::set-output name=msix_folderpath::$tempMsixFolder"
+
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: MSIX Package
-        path: ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\*.msixbundle
+        path: "${{ steps.gather.outputs.msix_folderpath }}"
