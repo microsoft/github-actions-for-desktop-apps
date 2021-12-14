@@ -89,13 +89,14 @@ jobs:
 
     # Build the Windows Application Packaging project
     - name: Build the Windows Application Packaging Project (wapproj)
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir=$env:AppxPackageDir /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms" /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir="$env:AppxPackageDir" /p:GenerateAppxPackageOnBuild=true /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
       env:
         AppxBundle: Never
         BuildMode: SideloadOnly
         AppxPackageDir: ${{ env.Wap_Project_Directory }}\${{ env.App_Packages_Directory }}
         Configuration: Debug
         TargetPlatform: ${{ matrix.targetplatform }}
+        AppxBundlePlatforms: ${{ matrix.targetplatform }}
 
     # Remove the .pfx
     - name: Remove the .pfx
