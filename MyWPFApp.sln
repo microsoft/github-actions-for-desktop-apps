@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyWPFApp.Tests", "MyWpfApp.Tests\MyWPFApp.Tests.csproj", "{203E0C07-10FC-450B-8D92-F6AA50167946}"
 EndProject
+Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "MyWPFApp.Package", "MyWPFApp.Package\MyWPFApp.Package.wapproj", "{0536B61A-90CF-428D-B4F8-CF011B3A0830}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,24 @@ Global
 		{203E0C07-10FC-450B-8D92-F6AA50167946}.Release|x64.Build.0 = Release|Any CPU
 		{203E0C07-10FC-450B-8D92-F6AA50167946}.Release|x86.ActiveCfg = Release|Any CPU
 		{203E0C07-10FC-450B-8D92-F6AA50167946}.Release|x86.Build.0 = Release|Any CPU
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|x64.ActiveCfg = Debug|x64
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|x64.Build.0 = Debug|x64
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|x64.Deploy.0 = Debug|x64
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|x86.ActiveCfg = Debug|x86
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|x86.Build.0 = Debug|x86
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Debug|x86.Deploy.0 = Debug|x86
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|x64.ActiveCfg = Release|x64
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|x64.Build.0 = Release|x64
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|x64.Deploy.0 = Release|x64
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|x86.ActiveCfg = Release|x86
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|x86.Build.0 = Release|x86
+		{0536B61A-90CF-428D-B4F8-CF011B3A0830}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
