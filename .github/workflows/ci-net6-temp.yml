@@ -14,10 +14,10 @@ on:
 jobs:
 
   build:
-
-    strategy:
-      matrix:
-        targetplatform: [x86, x64]
+    # since MSIX cam bundle all target platforms, we don't need a matrix to build multiple TFMs
+    #strategy:
+    #  matrix:
+    #    targetplatform: [x86, x64]
 
     runs-on: windows-2022
 
@@ -27,8 +27,9 @@ jobs:
       Solution_Path: MyWpfApp.sln
       Test_Project_Path: MyWpfApp.Tests\MyWpfApp.Tests.csproj
       Wpf_Project_Path: MyWpfApp\MyWpfApp.csproj
-      Wap_Project_Directory: MyWpfApp.Package
-      Wap_Project_Name: MyWpfApp.Package.wapproj
+      Appxmanifest_Path: MyWpfApp\Package.appxmanifest
+      #Wap_Project_Directory: MyWpfApp.Package
+      #Wap_Project_Name: MyWpfApp.Package.wapproj
       Actions_Allow_Unsecure_Commands: true # Allows AddPath and SetEnv commands
 
     steps:
@@ -56,14 +57,14 @@ jobs:
     # Update the version before build
     - name: Update manifest version
       run: |
-        [xml]$manifest = get-content ".\$env:Wap_Project_Directory\Package.appxmanifest"
+        [xml]$manifest = get-content ".\${{ env.Appxmanifest_Path }}"
         $manifest.Package.Identity.Version = "$env:NBGV_SimpleVersion.0"
-        $manifest.save(".\${{ env.Wap_Project_Directory }}\Package.appxmanifest")
+        $manifest.save(".\${{ env.Appxmanifest_Path }}")
 
     - name: .NET Restore
       run: dotnet restore ${{ env.Solution_Path }} --runtime $env:RuntimeIdentifier
       env:
-        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+        RuntimeIdentifier: win-x64
 
     # Test
     - name: Execute Unit Tests
@@ -74,63 +75,70 @@ jobs:
       run: msbuild ${{ env.Solution_Path }} /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
         Configuration: Debug
-        RuntimeIdentifier: win-${{ matrix.targetplatform }}
-    
-    - name: NuGet Restore Wapp Project
-      run: nuget restore ${{ env.Wap_Project_Path }}
+        RuntimeIdentifier: win-x64
+        
+    # Not used in a single-project msix scenario
+    #- name: NuGet Restore Wapp Project
+    #  run: nuget restore ${{ env.Wap_Project_Path }}
     
     # Decode the Base64 encoded Pfx
     - name: Decode the Pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $currentDirectory = Get-Location
-        $certificatePath = Join-Path -Path $currentDirectory -ChildPath ${{ env.Wap_Project_Directory }} -AdditionalChildPath ${{ env.Signing_Certificate }}
+        $certificatePath = Join-Path -Path $currentDirectory -ChildPath ${{ env.Signing_Certificate }}
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
-    # Build the Windows Application Packaging project
-    - name: Build the Windows Application Packaging Project (wapproj)
-      run: msbuild ${{ env.Solution_Path }} /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:AppxBundlePlatforms="${{ env.Appx_Bundle_Platforms }}" /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir="$env:AppxPackageDir" /p:GenerateAppxPackageOnBuild=true /p:PackageCertificateKeyFile=${{ env.Signing_Certificate }} /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
+    # Build and create MSIX package
+    - name: Build the WPF project in MSIX package mode
+      run: msbuild ${{ env.Solution_Path }} /p:Platform=$env:TargetPlatform /p:RuntimeIdentifier=$env:RuntimeIdentifier /p:Configuration=$env:Configuration /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir="$env:AppxPackageDir" /p:GenerateAppxPackageOnBuild=$env:GenerateAppPackage /p:AppxPackageSigningEnabled=$env:SigningEnabled /p:PackageCertificateKeyFile=${{ env.Signing_Certificate }} /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
       env:
         AppxBundle: Never
         BuildMode: SideloadOnly
         AppxPackageDir: ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}
         Configuration: Debug
-        TargetPlatform: ${{ matrix.targetplatform }}
-        AppxBundlePlatforms: ${{ matrix.targetplatform }}
+        TargetPlatform: x64
+        RuntimeIdentifier: win-x64
+        AppxBundlePlatforms: x86|x64|arm|arm64
+        SigningEnabled: false
+        GenerateAppPackage: false
 
     # Remove the .pfx
     - name: Remove the .pfx
-      run: Remove-Item -path ${{ env.Wap_Project_Directory }}\${{ env.Signing_Certificate }}
+      run: Remove-Item -path ${{ env.Signing_Certificate }}
     
-    - name: Find MSIX files
-      id: gather
-      shell: pwsh
-      run: |
-        $currentDirectory = Get-Location
-        $msixFiles = Get-ChildItem -Path $currentDirectory -Recurse -Include MyWPFApp*.msix
+    # - name: Find MSIX files
+    #   id: gather
+    #   shell: pwsh
+    #   run: |
+    #     $currentDirectory = Get-Location
+    #     $msixFiles = Get-ChildItem -Path $currentDirectory -Recurse -Include *.msixbundle
 
-        $count = $msixFiles.count
+    #     $count = $msixFiles.count
 
-        if($count -gt 0){
-          echo "Discovered $count MSIX files"
-        } else {
-          echo "There were NO MSIX files in the source folder."
-          exit 1
-        }
+    #     if($count -gt 0){
+    #       echo "Discovered $count MSIX files"
+    #     } else {
+    #       echo "There were NO MSIX files in the source folder."
+    #       exit 1
+    #     }
         
-        $tempMsixFolder = Join-Path -Path $currentDirectory -ChildPath "MsixFiles\"
-        New-Item -Path $tempMsixFolder -ItemType Directory -Force
+    #     $tempMsixFolder = Join-Path -Path $currentDirectory -ChildPath "MsixFiles\"
+    #     New-Item -Path $tempMsixFolder -ItemType Directory -Force
 
-        $msixFiles | ForEach-Object {
-          Copy-Item -Path $_ -Destination $tempMsixFolder
-          echo "Successfully copied $_ to $tempMsixFolder"
-        }
+    #     $msixFiles | ForEach-Object {
+    #       Copy-Item -Path $_ -Destination $tempMsixFolder
+    #       echo "Successfully copied $_ to $tempMsixFolder"
+    #     }
 
-        echo "::set-output name=msix_folderpath::$tempMsixFolder"
+    #     echo "::set-output name=msix_folderpath::$tempMsixFolder"
+        
+    - name: compress artifacts
+      run: Compress-Archive -Path ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\* -DestinationPath ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\BuildArtifacts.zip
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: MSIX Package
-        path: "${{ steps.gather.outputs.msix_folderpath }}"
+        name: BuildArtifacts
+        path: ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\BuildArtifacts.zip

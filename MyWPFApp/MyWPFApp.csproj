@@ -1,17 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>win.ico</ApplicationIcon>
-    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <StartupObject>MyWPFApp.App</StartupObject>
+    <Platforms>AnyCPU</Platforms>
+    <RuntimeIdentifiers>win10-x86;win10-x64;</RuntimeIdentifiers>
+    <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
   </PropertyGroup>
+  
   <PropertyGroup>
     <PlatformTarget>$(Platform)</PlatformTarget>
   </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="AppInsights.WindowsDesktop" Version="2.18.1" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.255" PrivateAssets="all" />
@@ -23,5 +26,4 @@
   <ItemGroup>
     <None Update="ApplicationInsights.config" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
 </Project>
