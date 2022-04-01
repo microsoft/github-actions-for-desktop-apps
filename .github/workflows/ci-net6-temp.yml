@@ -107,6 +107,7 @@ jobs:
     - name: Remove the .pfx
       run: Remove-Item -path ${{ env.Signing_Certificate }}
     
+    # Can be replaced with a single search for *.msixbundle file
     # - name: Find MSIX files
     #   id: gather
     #   shell: pwsh
@@ -133,12 +134,14 @@ jobs:
 
     #     echo "::set-output name=msix_folderpath::$tempMsixFolder"
         
-    - name: compress artifacts
-      run: Compress-Archive -Path ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\* -DestinationPath ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\BuildArtifacts.zip
 
-    # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: BuildArtifacts
-        path: ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\BuildArtifacts.zip
+    # Not needed for debug builds because we do not build msix packages or bundle them
+    # - name: compress artifacts
+    #   run: Compress-Archive -Path ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\* -DestinationPath ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\BuildArtifacts.zip
+
+    # # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
+    # - name: Upload build artifacts
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: BuildArtifacts
+    #     path: ${{ env.GITHUB_ACTION_PATH }}\${{ env.App_Packages_Directory }}\BuildArtifacts.zip
