@@ -23,7 +23,7 @@ jobs:
 
     env:
       App_Packages_Directory: AppPackages
-      SigningCertificate: GitHubActionsDemo.pfx
+      Signing_Certificate: GitHubActionsDemo.pfx
       Solution_Path: MyWpfApp.sln
       Test_Project_Path: MyWpfApp.Tests\MyWpfApp.Tests.csproj
       Wpf_Project_Path: MyWpfApp\MyWpfApp.csproj
@@ -61,7 +61,7 @@ jobs:
         $manifest.save(".\${{ env.Wap_Project_Directory }}\Package.appxmanifest")
 
     - name: .NET Restore
-      run: dotnet restore ${{ env.SolutionPath }} --runtime $env:RuntimeIdentifier
+      run: dotnet restore ${{ env.Solution_Path }} --runtime $env:RuntimeIdentifier
       env:
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
 
@@ -71,25 +71,25 @@ jobs:
 
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder
-      run: msbuild ${{ env.SolutionPath }} /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
+      run: msbuild ${{ env.Solution_Path }} /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
         Configuration: Debug
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
     
     - name: NuGet Restore Wapp Project
-      run: nuget restore ${{ env.WappProject_Path }}
+      run: nuget restore ${{ env.Wap_Project_Path }}
     
     # Decode the Base64 encoded Pfx
     - name: Decode the Pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $currentDirectory = Get-Location
-        $certificatePath = Join-Path -Path $currentDirectory -ChildPath ${{ env.Wap_Project_Directory }} -AdditionalChildPath ${{ env.SigningCertificate }}
+        $certificatePath = Join-Path -Path $currentDirectory -ChildPath ${{ env.Wap_Project_Directory }} -AdditionalChildPath ${{ env.Signing_Certificate }}
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
     # Build the Windows Application Packaging project
     - name: Build the Windows Application Packaging Project (wapproj)
-      run: msbuild ${{ env.Solution_Path }} /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:AppxBundlePlatforms="${{ env.Appx_Bundle_Platforms }}" /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir="$env:AppxPackageDir" /p:GenerateAppxPackageOnBuild=true /p:PackageCertificateKeyFile=${{ env.SigningCertificate }} /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
+      run: msbuild ${{ env.Solution_Path }} /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:AppxBundlePlatforms="${{ env.Appx_Bundle_Platforms }}" /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageDir="$env:AppxPackageDir" /p:GenerateAppxPackageOnBuild=true /p:PackageCertificateKeyFile=${{ env.Signing_Certificate }} /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} 
       env:
         AppxBundle: Never
         BuildMode: SideloadOnly
@@ -100,7 +100,7 @@ jobs:
 
     # Remove the .pfx
     - name: Remove the .pfx
-      run: Remove-Item -path ${{ env.Wap_Project_Directory }}\${{ env.SigningCertificate }}
+      run: Remove-Item -path ${{ env.Wap_Project_Directory }}\${{ env.Signing_Certificate }}
     
     - name: Find MSIX files
       id: gather
