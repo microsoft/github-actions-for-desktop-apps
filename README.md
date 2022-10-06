@@ -1,6 +1,6 @@
 # DevOps for Windows Desktop Apps Using GitHub Actions
 
-### Create CI/CD workflows for WPF and Windows Forms Applications built on .Net Core 3.x
+### Create CI/CD workflows for WPF and Windows Forms Applications built on .NET Core 3.x
 
 This repo contains a sample application to demonstrate how to create CI/CD pipelines using [GitHub Actions](https://github.com/features/actions "GitHub Actions page"). 
 
@@ -10,16 +10,19 @@ With GitHub Actions, you can quickly and easily automate your software workflows
 * Continuously run tests to identify and eliminate bugs, improving code quality 
 * Automatically build, sign, package and deploy branches that pass CI 
 
-Build, test, and deploy your code entirely within GitHub.  
+Build, test, and deploy your code entirely within GitHub.
 
-![Wpf Continuous Integration](https://github.com/microsoft/github-actions-for-desktop-apps/workflows/Wpf%20Continuous%20Integration/badge.svg)
-
-![Wpf Continuous Delivery](https://github.com/microsoft/github-actions-for-desktop-apps/workflows/Wpf%20Continuous%20Delivery/badge.svg)
+| Workflow | Status |
+|----------|--------|
+| WPF - CI | ![ci](https://github.com/microsoft/github-actions-for-desktop-apps/workflows/Wpf%20Continuous%20Integration/badge.svg) |
+| WPF - CD | ![cd](https://github.com/microsoft/github-actions-for-desktop-apps/workflows/Wpf%20Continuous%20Delivery/badge.svg) |
+| WPF - CI (.NET 6 experimental) | [![NET 6.0 CI (temporary)](https://github.com/microsoft/github-actions-for-desktop-apps/actions/workflows/ci-net6-temp.yml/badge.svg)](https://github.com/microsoft/github-actions-for-desktop-apps/actions/workflows/ci-net6-temp.yml) |
 
 ## Workflows
 
 To take advantage of GitHub Actions, workflows are defined in YAML files that are in the .github/workflows folder. 
 In the project, there are two workflows defined:
+
 * .github/workflows/ci.yml
 * .github/workflows/cd.yml
 
