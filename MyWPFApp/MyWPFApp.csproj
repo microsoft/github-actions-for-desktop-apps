@@ -13,10 +13,10 @@
     <PlatformTarget>$(Platform)</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AppInsights.WindowsDesktop" Version="2.10.55" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50" PrivateAssets="all" />
-    <PackageReference Include="OSVersionHelper" Version="1.0.11" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.17763.1000-preview" />
+    <PackageReference Include="AppInsights.WindowsDesktop" Version="2.18.1" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.113" PrivateAssets="all" />
+    <PackageReference Include="OSVersionHelper" Version="1.1.24" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.2" />
   </ItemGroup>
 
   <ItemGroup>
