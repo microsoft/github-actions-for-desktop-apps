@@ -82,26 +82,25 @@ jobs:
 
     # Use Nerdbank.GitVersioning to set version variables: https://github.com/AArnott/nbgv
     - name: Use Nerdbank.GitVersioning to set version variables
-      uses: aarnott/nbgv@v0.3
-      with:
-        setAllVars: true
+      uses: dotnet/nbgv@master
+      id: nbgv
 
     # Install the .NET Core workload
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '3.1.302'
+        dotnet-version: '6.0.x'
 
     # Add  MsBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.1
+      uses: microsoft/setup-msbuild@v1.1
 
     # Update the appxmanifest before build by setting the per-channel values set in the matrix such as
     # the Package.Identity.Version or the Package.Identity.Name, which allows multiple channels to be built.
     - name: Update manifest version
       run: |
         [xml]$manifest = get-content ".\$env:Wap_Project_Directory\Package.appxmanifest"
-        $manifest.Package.Identity.Version = "$env:NBGV_SimpleVersion.0"
+        $manifest.Package.Identity.Version = "${{ steps.nbgv.outputs.SimpleVersion }}.0"
         $manifest.Package.Identity.Name = "${{ matrix.MsixPackageId }}"
         $manifest.Package.Identity.Publisher = "${{ matrix.MsixPublisherId }}"
         $manifest.Package.Properties.DisplayName = "${{ matrix.MsixPackageDisplayName }}"
