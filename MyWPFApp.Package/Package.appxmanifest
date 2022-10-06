@@ -9,7 +9,7 @@
   <Identity
     Name="MyWPFApp.DevOpsDemo.Local"
     Publisher="CN=GitHubActionsDemo"
-    Version="0.0.2.0" />
+    Version="0.0.3.0" />
 
   <Properties>
     <DisplayName>MyWPFApp (Local)</DisplayName>
